@@ -1717,7 +1717,7 @@ refreshPri();renderTags2();renderAll();checkArchive();
 // Register service worker
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/blueberries/sw.js')
+    navigator.serviceWorker.register('/blueberries-todo/sw.js')
       .catch(err=>console.log('SW registration failed:',err));
   });
 }
