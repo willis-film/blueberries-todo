@@ -672,6 +672,10 @@ function showRP(state,title,sub){
 // ── TAB SWITCHING ─────────────────────────────────────────
 function switchTab(id,btn){
   currentTab=id;
+  // Close all expanded cards and edit panels when switching tabs
+  expanded={};
+  editOpen={};
+  rescheduleOpen={};
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -1316,7 +1320,7 @@ async function runDump(){
     const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
-Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
+Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","subtasks":string[],"bucket":"inbox"|"week"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
 priority: 1=Critical (urgent/important), 2=High (important), 3=Low (nice to do).
 bucket: "week" if urgent this week, "burner" if long-term vague, else "inbox".
 suggested_due: only if timing is genuinely inferrable and no due date is set, else null.
@@ -1365,7 +1369,7 @@ function commitDump(){
   const pending=[];
   accepted.forEach(t=>{
     const newId=Date.now().toString()+Math.random();
-    tasks.push({id:newId,text:t.text,notes:t.notes||'',due:t.due||'',priority:t.priority||3,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
+    tasks.push({id:newId,text:t.text,notes:'',due:t.due||'',priority:t.priority||3,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
     if(!t.due&&t.suggested_due&&t.suggested_due_reason)pending.push({id:newId,date:t.suggested_due,reason:t.suggested_due_reason});
   });
   save();renderAll();
@@ -1384,7 +1388,7 @@ async function runDumpMobile(){
     const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
-Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"prioritized"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
+Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","subtasks":string[],"bucket":"inbox"|"week"|"prioritized"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
 priority: 1=Critical, 2=High, 3=Low. bucket: "week" if urgent this week, "burner" if long-term vague, else "inbox".
 If a task involves a phone call, text, email, voicemail, or any direct communication with a person, include "Call Sheet" in its tags array.
 suggested_due: only if timing is genuinely inferrable and no due date is set, else null. Today: ${todayStr()}.`,
@@ -1431,7 +1435,7 @@ function commitDumpMobile(){
   const pending=[];
   accepted.forEach(t=>{
     const newId=Date.now().toString()+Math.random();
-    tasks.push({id:newId,text:t.text,notes:t.notes||'',due:t.due||'',priority:t.priority||2,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
+    tasks.push({id:newId,text:t.text,notes:'',due:t.due||'',priority:t.priority||2,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
     if(!t.due&&t.suggested_due&&t.suggested_due_reason)pending.push({id:newId,date:t.suggested_due,reason:t.suggested_due_reason});
   });
   save();renderAll();
