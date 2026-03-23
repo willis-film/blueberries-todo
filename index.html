@@ -1249,7 +1249,7 @@ function submitAdd(){
 // ── DUE DATE SUGGESTION ───────────────────────────────────
 async function suggestDueDate(taskId,text){
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:120,
       system:`Suggest due dates only when timing is genuinely inferrable from real-world context (seasons, annual deadlines, recurring events). If not confident, return {}. Today: ${todayStr()}. Respond ONLY with JSON: {"date":"YYYY-MM-DD","reason":"short phrase"} or {}`,
       messages:[{role:'user',content:text}]
@@ -1312,7 +1312,7 @@ async function runDump(){
   document.getElementById('dumpLoadingWrap').style.display='block';
   document.getElementById('dumpErr').classList.remove('show');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
 Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
@@ -1380,7 +1380,7 @@ async function runDumpMobile(){
   document.getElementById('dumpLoadingWrapMobile').style.display='block';
   document.getElementById('dumpErrMobile').classList.remove('show');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
 Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"prioritized"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
@@ -1456,7 +1456,7 @@ async function runWeekSuggest(){
     return;
   }
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:800,
       system:`Pick 3-5 inbox tasks for this week. Return ONLY JSON array: [{"id":"task id","reason":"1 sentence why this week"}]. Today: ${todayStr()}. End of week: ${endOfWeek()}.`,
       messages:[{role:'user',content:`Inbox:\n${inbox.map(t=>`ID:${t.id} | ${t.text} | pri:${t.priority} | due:${t.due||'none'} | effort:${t.effort||'?'}`).join('\r\n')}`}]
@@ -1512,7 +1512,7 @@ function openUnstuck(tid,e){
   document.getElementById('unstuckErr').classList.remove('show');
   showRP('unstuck','Breaking the block','Reading your task…');
   const ctx=[t.text,t.notes&&`Notes: ${t.notes}`,t.due&&`Due: ${t.due}`,t.tags?.length&&`Tags: ${t.tags.join(', ')}`].filter(Boolean).join('\r\n');
-  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     model:'claude-sonnet-4-20250514',max_tokens:800,
     system:`Help someone break through task paralysis. Return ONLY JSON: {"what":"2-3 sentences normalizing the task","matters":"2-3 sentences on the 1-2 real decisions and what to safely ignore","next":"ONE hyper-specific next action in the next 5 minutes"}`,
     messages:[{role:'user',content:`I'm stuck on: ${ctx}`}]
