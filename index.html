@@ -739,6 +739,7 @@ function renderOverdueCard(t){
         <button class="panel-btn ${editOpen[t.id]?'accent':''}" onclick="toggleEdit('${t.id}',event)">${editOpen[t.id]?'✓ Done editing':'✏️ Edit'}</button>
         <button class="panel-btn" onclick="openUnstuck('${t.id}',event)">🪨 Stuck</button>
         <button class="panel-btn ${t.quickable?'accent':''}" onclick="toggleTaskQuickable('${t.id}',event)">🫐 ${t.quickable?'Quick ✓':'Quick win'}</button>
+        <button class="panel-btn" style="color:var(--jam);border-color:var(--jam-lt)" onclick="deleteTask('${t.id}',event)">🗑 Delete</button>
         ${t.bucket==='inbox'?`
           <button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritize</button>
           <button class="panel-btn" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>
@@ -860,7 +861,7 @@ function renderCard(t){
       </div>
       ${hasN&&!edOpen?`<div class="panel-notes" style="padding:10px 14px;font-family:var(--serif);font-style:italic;font-weight:300;font-size:13px;color:var(--mid);line-height:1.65;">${esc(t.notes)}</div>`:''}
       ${hasS?`<div class="panel-subs">${t.subtasks.map((s,i)=>`<div class="sub-row" onclick="toggleSub('${t.id}',${i},event)"><div class="sub-check ${s.done?'on':''}"></div><div class="sub-text ${s.done?'done':''}">${esc(s.text)}</div></div>`).join('')}</div>`:''}
-      ${panelBtns?`<div class="panel-actions">${panelBtns}</div>`:''}
+      ${panelBtns?`<div class="panel-actions">${panelBtns}<button class="panel-btn" style="color:var(--jam);border-color:var(--jam-lt)" onclick="deleteTask('${t.id}',event)">🗑 Delete</button></div>`:''}
     </div>`:''}
   </div>`;
 }
