@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Blueberries</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Blueberries">
+<meta name="theme-color" content="#5b4a8a">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f0e8; --bg2:#ede7d9; --surface:#faf7f2;
+  --border:#ddd5c0; --border2:#c9bfa8;
+  --text:#2e2516; --mid:#7a6a50; --dim:#b0a088;
+  --crust:#8b6340; --crust-lt:#f2e6d8;
+  --berry:#5b4a8a; --berry-lt:#ede8f5;
+  --jam:#c0392b; --jam-lt:#faeae8;
+  --honey:#c87f2a; --honey-lt:#fdf3e3;
+  --butter:#b09030; --butter-lt:#fdf8e6;
+  --muted:#9a9080; --muted-lt:#f5f2ec;
+  --tw:#5a7fa0; --tw-lt:#e8f0f8;
+  --th:#5a8a60; --th-lt:#e8f3ea;
+  --te:#9a6a30; --te-lt:#f5ece0;
+  --tr:#7a5a90; --tr-lt:#f0eaf8;
+  --tk:#a05060; --tk-lt:#f8eaec;
+  --tc:#4a7a6a; --tc-lt:#e4f0ec;
+  --r:14px; --rl:20px; --rxl:26px;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --sh:0 2px 8px rgba(46,37,22,0.08);
+  --nav-h:72px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;display:flex;flex-direction:column;height:100%;}
+.app-shell{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;width:100%;}
+
+/* HEADER */
+.header{padding:24px 20px 0;background:var(--bg);border-bottom:2px solid var(--berry);position:sticky;top:0;z-index:50;flex-shrink:0;opacity:0.97;}
+.header-top{display:flex;align-items:flex-end;justify-content:flex-start;margin-bottom:14px;}
+.app-name{font-family:var(--serif);font-size:32px;font-weight:400;font-style:italic;color:var(--berry);line-height:1;}
+.app-name span{display:block;font-family:var(--sans);font-size:12px;font-style:normal;font-weight:400;letter-spacing:0.04em;color:var(--mid);margin-top:5px;}
+
+.tabs{display:flex;gap:6px;padding:0 0 14px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+.tab.on{background:var(--berry);border-color:var(--berry);color:#fff;box-shadow:0 2px 8px rgba(91,74,138,0.25);}
+@keyframes badgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+.tab.needs-triage .badge{background:var(--jam) !important;color:#fff !important;animation:badgePulse 2s ease-in-out infinite;}
+.tab .badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.25);font-size:10px;margin-left:4px;font-weight:600;}
+.tab:not(.on) .badge{background:var(--border);color:var(--mid);}
+
+/* PAGES */
+.main-content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.page{display:none;flex:1;overflow-y:auto;padding:14px 14px calc(var(--nav-h) + 20px);}
+.page.on{display:block;}
+.right-panel{display:none;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 12px 8px;gap:8px;z-index:100;}
+.nav-btn{flex:1;height:48px;border-radius:var(--rl);border:1px solid var(--border);background:var(--bg2);font-family:var(--sans);font-size:12px;font-weight:500;color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;}
+.nav-btn:active,.nav-btn:hover{opacity:0.85;}
+.nav-btn.primary{background:var(--crust);border-color:var(--crust);color:#fff;box-shadow:0 4px 16px rgba(139,99,64,0.3);}
+.nav-btn.spark{background:var(--berry-lt);border-color:var(--berry);color:var(--berry);}
+
+/* DESKTOP */
+@media(min-width:820px){
+  body{background:var(--bg2);}
+  .app-shell{max-width:1000px;flex-direction:row;height:100vh;overflow:hidden;}
+  .left-col{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);border-right:1px solid var(--border);height:100vh;overflow:hidden;}
+  .header{padding:28px 24px 0;position:static;}
+  .header-top{margin-bottom:16px;}
+  .app-name{font-size:34px;color:var(--berry);}
+  .main-content{flex:1;overflow:hidden;}
+  .page{padding:18px 20px 100px;}
+  .bottom-nav{position:static;transform:none;width:100%;max-width:none;border-top:1px solid var(--border);background:var(--surface);padding:12px 16px 16px;height:auto;flex-shrink:0;}
+  .nav-btn{height:44px;font-size:13px;}
+  .right-panel{display:flex;flex-direction:column;width:375px;flex-shrink:0;background:var(--surface);height:100vh;overflow:hidden;border-left:1px solid var(--border);}
+  .rp-header{padding:22px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .rp-title{font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic;color:var(--crust);line-height:1;}
+  .rp-sub{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.4;}
+  .rp-body{flex:1;overflow-y:auto;padding:18px 20px 40px;}
+  .mobile-only{display:none !important;}
+}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:7px;overflow:hidden;box-shadow:var(--sh);}
+.card-main{display:flex;align-items:flex-start;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.1s;}
+.card-main:hover{background:var(--bg2);}
+.pbar{width:3px;border-radius:100px;align-self:stretch;min-height:18px;flex-shrink:0;margin-top:2px;}
+.pb1{background:var(--jam);}.pb2{background:var(--honey);}.pb3{background:var(--muted);}.pb4{background:var(--muted);}
+.check{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--surface);transition:all 0.18s;}
+.check.on{background:var(--crust);border-color:var(--crust);}
+.check.on::after{content:'';width:4px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg) translate(-1px,-1px);display:block;}
+.card-body{flex:1;min-width:0;}
+.card-text{font-size:14px;line-height:1.35;color:var(--text);}
+.card-text.done{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--border2);}
+.card-meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.chip{font-size:10px;font-weight:500;padding:1px 7px;border-radius:100px;}
+.c-overdue{background:var(--jam-lt);color:var(--jam);}
+.c-today{background:var(--honey-lt);color:var(--honey);}
+.c-soon{background:var(--butter-lt);color:var(--butter);}
+.c-later{background:var(--muted-lt);color:var(--muted);}
+.expand-arrow{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:8px;transition:transform 0.2s;margin-top:2px;}
+.expand-arrow.open{transform:rotate(90deg);}
+.expand-arrow.ghost{opacity:0;pointer-events:none;}
+
+/* EXPANDED PANEL */
+.card-panel{border-top:1px solid var(--border);background:var(--bg2);display:none;}
+.card-panel.open{display:block;}
+.panel-edit{padding:12px 14px;border-bottom:1px solid var(--border);display:none;}
+.panel-edit.open{display:block;}
+.pe-field{margin-bottom:10px;}
+.pe-field:last-child{margin-bottom:0;}
+.pe-lbl{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:5px;}
+.pe-inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:14px;padding:8px 11px;outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none;}
+.pe-inp:focus{border-color:var(--crust);}
+textarea.pe-inp{resize:none;height:58px;line-height:1.5;}
+.pe-pri-row{display:flex;gap:5px;}
+.pe-pri-btn{flex:1;padding:6px 3px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg);font-family:var(--sans);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--mid);text-align:center;}
+.pe-pri-btn.s1{background:var(--jam-lt);border-color:var(--jam);color:var(--jam);}
+.pe-pri-btn.s2{background:var(--honey-lt);border-color:var(--honey);color:var(--honey);}
+.pe-pri-btn.s3{background:var(--muted-lt);border-color:var(--muted);color:var(--muted);}
+.pe-tag-row{display:flex;flex-wrap:wrap;gap:5px;}
+.pe-tag-btn{font-size:11px;font-weight:500;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--bg);color:var(--mid);cursor:pointer;transition:all 0.12s;}
+.pe-due-row{display:flex;gap:6px;align-items:center;}
+.pe-due-inp{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:7px 10px;outline:none;-webkit-appearance:none;appearance:none;}
+.pe-due-inp:focus{border-color:var(--crust);}
+.pe-clear{font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--border);border-radius:100px;padding:4px 9px;cursor:pointer;}
+.pe-delete{width:100%;margin-top:6px;padding:8px;border-radius:var(--r);border:1px solid var(--jam-lt);background:transparent;color:var(--jam);font-family:var(--sans);font-size:12px;cursor:pointer;}
+.pe-delete:hover{background:var(--jam-lt);}
+
+.panel-subs{border-top:1px solid var(--border);}
+.sub-row{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;}
+.sub-row+.sub-row{border-top:1px solid var(--border);}
+.sub-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--surface);transition:all 0.15s;}
+.sub-check.on{background:var(--crust);border-color:var(--crust);}
+.sub-check.on::after{content:'';width:3px;height:6px;border-right:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(45deg) translate(-0.5px,-1px);display:block;}
+.sub-text{font-size:13px;color:var(--mid);flex:1;}
+.sub-text.done{color:var(--dim);text-decoration:line-through;}
+.panel-actions{border-top:1px solid var(--border);padding:9px 14px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;}
+.panel-btn{font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--border);border-radius:100px;padding:4px 11px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.panel-btn:hover{background:var(--bg);}
+.panel-btn.accent{color:var(--crust);border-color:var(--crust-lt);background:var(--crust-lt);}
+
+/* OVERDUE SECTION */
+.overdue-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--jam);padding:14px 2px 7px;display:flex;align-items:center;gap:10px;}
+.overdue-label::after{content:'';flex:1;height:1px;background:var(--jam-lt);}
+.card.overdue{border:2px solid var(--jam);background:var(--surface);}
+.card.overdue .card-main{background:var(--surface);}
+.overdue-actions{border-top:1px solid var(--border);padding:8px 14px;display:flex;gap:7px;background:var(--bg2);}
+.overdue-btn{font-size:11px;font-weight:500;padding:5px 12px;border-radius:100px;border:none;cursor:pointer;transition:all 0.15s;}
+.overdue-btn.reschedule{background:var(--surface);color:var(--jam);border:1px solid var(--jam);}
+.overdue-btn.reschedule:hover{background:var(--jam-lt);}
+.overdue-btn.thisweek{background:var(--crust);color:#fff;}
+.overdue-btn.thisweek:hover{opacity:0.9;}
+.reschedule-row{display:flex;gap:7px;align-items:center;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg2);}
+.reschedule-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:6px 10px;outline:none;-webkit-appearance:none;appearance:none;}
+.reschedule-ok{font-size:12px;font-weight:600;color:#fff;background:var(--crust);border:none;border-radius:100px;padding:6px 13px;cursor:pointer;}
+
+/* COLLAPSIBLE COMPLETED SECTION */
+.completed-toggle{
+  font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dim);padding:18px 2px 7px;
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;user-select:none;
+  background:transparent;border:none;width:100%;text-align:left;
+}
+.completed-toggle::after{content:'';flex:1;height:1px;background:var(--border);}
+.completed-toggle .ct-arrow{font-size:8px;transition:transform 0.2s;margin-left:2px;}
+.completed-toggle.open .ct-arrow{transform:rotate(90deg);}
+.completed-list{display:none;}
+.completed-list.open{display:block;}
+
+/* SECTION / EMPTY */
+.sec-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);padding:18px 2px 7px;display:flex;align-items:center;gap:10px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.empty{text-align:center;padding:56px 32px;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--dim);line-height:1.9;}
+
+/* BANNERS */
+.banner{border-radius:var(--rl);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.banner.amber{background:var(--butter-lt);border:1px solid var(--butter);}
+.banner.brown{background:var(--crust-lt);border:1px solid var(--border2);}
+.banner-text{font-size:13px;line-height:1.4;}
+.banner.amber .banner-text{color:var(--honey);}
+.banner.brown .banner-text{color:var(--crust);}
+.banner-text strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px;}
+.banner-btn{font-size:12px;font-weight:600;color:#fff;border:none;border-radius:100px;padding:6px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.banner.amber .banner-btn{background:var(--honey);}
+.banner.brown .banner-btn{background:var(--crust);}
+
+/* PRIORITY FILTER PILLS */
+.pri-filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pri-filter-btn{font-size:12px;font-weight:500;padding:5px 13px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--mid);cursor:pointer;transition:all 0.15s;}
+.pri-filter-btn:hover{background:var(--bg2);}
+.pri-filter-btn.pf1{background:var(--jam-lt);border-color:var(--jam);color:var(--jam);}
+.pri-filter-btn.pf2{background:var(--honey-lt);border-color:var(--honey);color:var(--honey);}
+.pri-filter-btn.pf3{background:var(--muted-lt);border-color:var(--muted);color:var(--muted);}
+
+/* TAG FILTER / BURNER */
+.tag-filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tag-filter-btn{font-size:12px;font-weight:500;padding:5px 13px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--mid);cursor:pointer;transition:all 0.15s;}
+.tag-filter-btn:hover{background:var(--bg2);}
+.burner-note{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--dim);text-align:center;padding:8px 20px 16px;line-height:1.7;}
+
+/* ARCHIVE BANNER */
+.archive-banner{
+  background:var(--crust-lt);border:1px solid var(--crust);
+  border-radius:var(--rl);padding:12px 14px;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;
+}
+.archive-banner-text{flex:1;font-size:13px;color:var(--crust);line-height:1.4;}
+.archive-banner-text strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px;}
+.archive-banner-btns{display:flex;gap:6px;flex-shrink:0;}
+.archive-btn{font-size:12px;font-weight:600;color:#fff;background:var(--crust);border:none;border-radius:100px;padding:6px 13px;cursor:pointer;white-space:nowrap;}
+.archive-dismiss{font-size:12px;color:var(--dim);background:transparent;border:1px solid var(--border);border-radius:100px;padding:6px 10px;cursor:pointer;}
+
+/* DUE SUGGESTION */
+.due-sug{display:flex;align-items:center;gap:10px;background:var(--butter-lt);border:1px solid var(--butter);border-radius:var(--r);padding:10px 13px;margin-bottom:10px;animation:slideDown 0.25s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.due-sug-body{flex:1;min-width:0;}
+.due-sug-text{font-size:13px;color:var(--honey);line-height:1.4;}
+.due-sug-task{font-size:11px;color:var(--dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.due-sug-btns{display:flex;gap:6px;flex-shrink:0;}
+.due-sug-ok{font-size:12px;font-weight:600;color:#fff;background:var(--honey);border:none;border-radius:100px;padding:4px 12px;cursor:pointer;}
+.due-sug-x{font-size:12px;color:var(--dim);background:transparent;border:1px solid var(--border);border-radius:100px;padding:4px 9px;cursor:pointer;}
+
+/* QUICKABLE TOGGLE */
+.qt-btn{width:100%;display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;cursor:pointer;transition:all 0.15s;font-family:var(--sans);text-align:left;}
+.qt-btn.on{background:var(--butter-lt);border-color:var(--butter);}
+.qt-icon{font-size:15px;flex-shrink:0;}
+.qt-label{font-size:13px;color:var(--mid);flex:1;}
+.qt-btn.on .qt-label{color:var(--butter);}
+.qt-check{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.15s;}
+.qt-btn.on .qt-check{background:var(--butter);border-color:var(--butter);color:#fff;}
+.tag-add-btn{font-size:14px;padding:3px 9px;color:var(--dim);border-color:var(--border);}
+
+/* ── OVERLAYS (shared) ── */
+.overlay{position:fixed;inset:0;background:rgba(46,37,22,0.48);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{width:100%;max-width:480px;margin:0 auto;background:var(--surface);border-radius:var(--rxl) var(--rxl) 0 0;border-top:1px solid var(--border);padding:6px 20px 48px;transform:translateY(100%);transition:transform 0.26s cubic-bezier(0.32,0.72,0,1);max-height:90vh;overflow-y:auto;}
+.overlay.open .sheet{transform:translateY(0);}
+.handle{width:36px;height:4px;background:var(--border2);border-radius:100px;margin:10px auto 20px;}
+.sheet-title{font-family:var(--serif);font-size:23px;font-weight:400;font-style:italic;color:var(--crust);margin-bottom:16px;}
+
+/* ── TRIAGE INLINE CARD ── */
+.triage-card-wrap{
+  animation: triageIn 0.22s ease;
+}
+@keyframes triageIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.triage-card-wrap.sending {
+  animation: triageOut 0.22s ease forwards;
+}
+@keyframes triageOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-60px); }
+}
+.triage-card-wrap{
+  background:var(--surface);border:1.5px solid var(--crust);
+  border-radius:var(--rl);margin-bottom:10px;
+  overflow:hidden;box-shadow:0 4px 16px rgba(139,99,64,0.12);
+}
+.triage-card-top{
+  padding:14px 14px 12px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.triage-progress-pip{
+  display:flex;align-items:center;gap:8px;flex:1;
+}
+.triage-prog-bar{flex:1;height:3px;background:var(--border);border-radius:100px;overflow:hidden;}
+.triage-prog-fill{height:100%;background:var(--crust);border-radius:100px;transition:width 0.3s ease;}
+.triage-count{font-size:10px;color:var(--dim);white-space:nowrap;letter-spacing:0.04em;}
+.triage-exit-btn{font-size:11px;color:var(--dim);background:transparent;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;}
+.triage-card-text{font-size:16px;font-weight:400;color:var(--text);line-height:1.35;padding:14px 14px 12px;border-bottom:1px solid var(--border);}
+.triage-fields{padding:12px 14px;}
+.triage-section{margin-bottom:14px;}
+.triage-section:last-child{margin-bottom:0;}
+.triage-lbl{font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:7px;}
+.triage-pri-row{display:flex;gap:5px;}
+.triage-pri-btn{flex:1;padding:7px 3px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);font-family:var(--sans);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--mid);text-align:center;}
+.triage-pri-btn.s1{background:var(--jam-lt);border-color:var(--jam);color:var(--jam);}
+.triage-pri-btn.s2{background:var(--honey-lt);border-color:var(--honey);color:var(--honey);}
+.triage-pri-btn.s3{background:var(--muted-lt);border-color:var(--muted);color:var(--muted);}
+.triage-tag-row{display:flex;flex-wrap:wrap;gap:5px;}
+.triage-tag-btn{font-size:11px;font-weight:500;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--bg2);color:var(--mid);cursor:pointer;transition:all 0.12s;}
+.triage-due-inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:14px;padding:8px 11px;outline:none;-webkit-appearance:none;appearance:none;}
+.triage-due-inp:focus{border-color:var(--crust);}
+.triage-notes-inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:14px;padding:8px 11px;outline:none;resize:none;height:58px;line-height:1.5;-webkit-appearance:none;appearance:none;}
+.triage-notes-inp:focus{border-color:var(--crust);}
+.triage-card-footer{padding:12px 14px;border-top:1px solid var(--border);background:var(--bg2);}
+.triage-dest-row{display:flex;gap:6px;margin-bottom:10px;}
+.triage-dest-btn{flex:1;padding:8px 3px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);font-family:var(--sans);font-size:10px;font-weight:500;cursor:pointer;transition:all 0.15s;color:var(--mid);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.triage-dest-btn .td-icon{font-size:16px;}
+.triage-dest-btn.sel{background:var(--crust-lt);border-color:var(--crust);color:var(--crust);}
+.triage-send-btn{width:100%;padding:12px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 3px 10px rgba(139,99,64,0.25);}
+.triage-done-inline{text-align:center;padding:28px 16px;}
+.triage-done-icon{font-size:36px;margin-bottom:12px;}
+.triage-done-h{font-family:var(--serif);font-size:22px;font-weight:400;font-style:italic;color:var(--crust);margin-bottom:6px;}
+.triage-done-sub{font-size:13px;color:var(--mid);margin-bottom:18px;line-height:1.6;}
+.triage-done-btn{font-size:12px;color:var(--mid);background:transparent;border:1px solid var(--border);border-radius:100px;padding:7px 18px;cursor:pointer;}
+
+/* FORM INPUTS */
+.lbl{font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:7px;}
+.inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:15px;padding:11px 14px;outline:none;margin-bottom:16px;transition:border-color 0.15s,box-shadow 0.15s;-webkit-appearance:none;appearance:none;}
+.inp:focus{border-color:var(--crust);box-shadow:0 0 0 3px rgba(139,99,64,0.1);}
+.inp::placeholder{color:var(--dim);}
+textarea.inp{resize:none;height:80px;line-height:1.6;}
+.pri-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.pri-opt{padding:10px 6px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;color:var(--mid);display:flex;align-items:center;justify-content:center;gap:7px;}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pri-opt.s1{background:var(--jam-lt);border-color:var(--jam);color:var(--jam);}
+.pri-opt.s2{background:var(--honey-lt);border-color:var(--honey);color:var(--honey);}
+.pri-opt.s3{background:var(--muted-lt);border-color:var(--muted);color:var(--muted);}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.tag-opt{font-size:12px;font-weight:500;padding:5px 13px;border-radius:100px;border:1px solid var(--border);background:var(--bg2);color:var(--mid);cursor:pointer;transition:all 0.15s;}
+.tag-opt:hover{background:var(--bg);}
+.sheet-actions{display:flex;gap:10px;margin-top:6px;}
+.btn-ghost{flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--mid);font-family:var(--sans);font-size:15px;cursor:pointer;}
+.btn-ghost:hover{background:var(--bg2);}
+.btn-fill{flex:2;padding:13px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(139,99,64,0.28);}
+.btn-fill:hover{opacity:0.9;}
+.btn-fill:disabled{opacity:0.45;cursor:not-allowed;}
+
+/* RIGHT PANEL STATES */
+.rp-state{display:none;}
+.rp-state.on{display:block;}
+.rp-action-list{display:flex;flex-direction:column;gap:8px;}
+.rp-action{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px;}
+.rp-action:hover{border-color:var(--border2);background:var(--bg);}
+.rp-action-icon{font-size:19px;flex-shrink:0;}
+.rp-action-text strong{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.rp-action-text span{font-size:11px;color:var(--dim);}
+.rp-btn{width:100%;margin-top:14px;padding:13px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(139,99,64,0.28);}
+.rp-btn:hover{opacity:0.9;}
+.rp-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.rp-btn-ghost{width:100%;margin-top:10px;padding:13px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--mid);font-family:var(--sans);font-size:15px;cursor:pointer;}
+.rp-btn-ghost:hover{background:var(--bg2);}
+
+/* AI SHARED */
+.spin-wrap{text-align:center;padding:28px 0;}
+.bread{font-size:30px;animation:spin 1.4s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-note{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--berry);margin-top:10px;}
+.shim{height:12px;border-radius:100px;margin-bottom:10px;background:linear-gradient(90deg,var(--bg2) 25%,var(--border) 50%,var(--bg2) 75%);background-size:200% 100%;animation:shim 1.4s infinite;}
+.shim:nth-child(2){width:88%;animation-delay:.1s;}.shim:nth-child(3){width:94%;animation-delay:.2s;}.shim:nth-child(4){width:72%;animation-delay:.15s;}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.ai-err{background:var(--jam-lt);border:1px solid var(--jam);border-radius:var(--r);padding:11px 14px;color:var(--jam);font-size:13px;line-height:1.5;display:none;}
+.ai-err.show{display:block;}
+.review-lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin:16px 0 10px;display:flex;align-items:center;gap:10px;}
+.review-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.rcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:9px;overflow:hidden;transition:all 0.18s;}
+.rcard.yes{border-color:var(--crust);background:var(--crust-lt);}
+.rcard.no{opacity:0.38;}
+.rcard-body{padding:12px 14px;}
+.rcard-text{font-size:14px;color:var(--text);margin-bottom:7px;}
+.rcard-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.rcard-acts{display:flex;gap:7px;}
+.racc{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--crust);background:var(--crust);color:#fff;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;}
+.racc:hover{opacity:0.9;}
+.rrej{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:var(--sans);font-size:13px;cursor:pointer;}
+.rrej:hover{background:var(--bg);}
+.racc-done{flex:1;padding:7px 10px;border-radius:8px;background:var(--crust);color:#fff;font-size:13px;font-weight:500;display:none;align-items:center;justify-content:center;}
+.rcard.yes .racc,.rcard.yes .rrej{display:none;}
+.rcard.yes .racc-done{display:flex;}
+.rsubs{border-top:1px solid var(--border);padding:8px 14px;background:var(--surface);}
+.rsub-item{font-size:12px;color:var(--mid);padding:2px 0;display:flex;align-items:center;gap:6px;}
+.rsub-item::before{content:'·';color:var(--dim);font-size:16px;line-height:1;}
+
+/* GMS / UNSTUCK */
+.brief-section{margin-bottom:18px;}
+.brief-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);margin-bottom:7px;display:flex;align-items:center;gap:8px;}
+.brief-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.brief-body{font-size:14px;color:var(--mid);line-height:1.7;}
+.brief-body p{margin-bottom:7px;}.brief-body p:last-child{margin:0;}
+.next-box{background:var(--crust-lt);border:1px solid var(--border2);border-radius:var(--r);padding:13px 15px;}
+.next-text{font-size:15px;font-weight:500;color:var(--crust);line-height:1.4;}
+.gms-kicker{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
+.gms-task{font-family:var(--serif);font-size:24px;font-weight:400;font-style:italic;color:var(--crust);margin-bottom:8px;line-height:1.25;}
+.gms-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px;}
+.gms-why{font-size:14px;color:var(--mid);line-height:1.65;margin-bottom:16px;}
+.gms-first-box{background:var(--crust-lt);border:1px solid var(--border2);border-radius:var(--r);padding:13px 15px;margin-bottom:18px;}
+.gms-first-lbl{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
+.gms-first-text{font-size:15px;font-weight:500;color:var(--crust);line-height:1.4;}
+.gms-actions{display:flex;gap:8px;}
+.gms-do{flex:2;padding:13px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(139,99,64,0.28);}
+.gms-do:hover{opacity:0.9;}
+.gms-skip{flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--mid);font-family:var(--sans);font-size:15px;cursor:pointer;}
+.gms-skip:hover{background:var(--bg2);}
+
+/* DUMP SUB */
+.dump-sub{font-size:13px;color:var(--mid);line-height:1.5;margin-bottom:16px;}
+.dump-go{width:100%;margin-top:10px;padding:13px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(139,99,64,0.28);display:flex;align-items:center;justify-content:center;gap:8px;}
+.dump-go:disabled{opacity:0.45;cursor:not-allowed;}
+.commit-btn{width:100%;margin-top:14px;padding:13px;border-radius:var(--r);border:none;background:var(--crust);color:#fff;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 14px rgba(139,99,64,0.28);}
+.commit-btn:disabled{opacity:0.4;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <div class="left-col">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-top">
+        <div class="app-name">Blueberries<span id="headerDate"></span></div>
+      </div>
+      <div class="tabs">
+        <button class="tab" onclick="switchTab('inbox',this)">Inbox <span class="badge" id="badge-inbox">0</span></button>
+        <button class="tab on" onclick="switchTab('week',this)">This Week <span class="badge" id="badge-week">0</span></button>
+        <button class="tab" onclick="switchTab('priority',this)">Prioritized <span class="badge" id="badge-priority">0</span></button>
+        <button class="tab" onclick="switchTab('tags',this)">By Tag <span class="badge" id="badge-tags">0</span></button>
+        <button class="tab" onclick="switchTab('burner',this)">Back Burner <span class="badge" id="badge-burner">0</span></button>
+        <button class="tab" onclick="switchTab('calls',this)">Call Sheet <span class="badge" id="badge-calls">0</span></button>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="main-content">
+      <div class="page" id="page-inbox">
+        <div id="archiveBanner" style="display:none">
+          <div class="archive-banner">
+            <div class="archive-banner-text">
+              <strong>Quarterly archive</strong>
+              You have completed tasks to archive
+            </div>
+            <div class="archive-banner-btns">
+              <button class="archive-btn" onclick="runArchive()">Download CSV</button>
+              <button class="archive-dismiss" onclick="dismissArchive()">Later</button>
+            </div>
+          </div>
+        </div>
+        <div id="inboxBanner" style="display:none">
+          <div class="banner amber">
+            <div class="banner-text"><strong>You have berries to sort!</strong>Triage to get them off this list</div>
+            <button class="banner-btn" onclick="openTriage()">Triage →</button>
+          </div>
+        </div>
+        <!-- Inline triage view — hidden when not triaging -->
+        <div id="triageInline" style="display:none">
+          <div id="triageCard"></div>
+        </div>
+        <div id="inboxList"></div>
+      </div>
+      <div class="page on" id="page-week">
+        <div id="weekList"></div>
+      </div>
+      <div class="page" id="page-tags">
+        <div class="tag-filter-row" id="tagFilterRow"></div>
+        <div id="tagList"></div>
+      </div>
+      <div class="page" id="page-burner">
+        <div class="burner-note">Things you've consciously set aside.<br>Not forgotten, just not active.</div>
+        <div id="burnerList"></div>
+      </div>
+      <div class="page" id="page-priority">
+        <div class="pri-filter-row" id="priFilterRow"></div>
+        <div id="priorityList"></div>
+      </div>
+      <div class="page" id="page-calls">
+        <div class="burner-note" style="color:var(--tc)">Calls, texts, emails, and messages.<br>Everything that needs a response.</div>
+        <div id="callsList"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="showRPDump()"><span>✦</span> Brain dump</button>
+      <button class="nav-btn spark" onclick="showRPGMS()"><span>🫐</span> Quick Berry</button>
+      <button class="nav-btn primary" onclick="openAdd()"><span style="font-size:18px;font-weight:300">+</span> Add</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (desktop) -->
+  <div class="right-panel" id="rightPanel">
+    <div class="rp-header">
+      <div class="rp-title" id="rpTitle">Good to see you</div>
+      <div class="rp-sub" id="rpSub">Pick something to do, or add a task.</div>
+    </div>
+    <div class="rp-body" id="rpBody">
+      <div class="rp-state on" id="rp-welcome">
+        <div class="rp-action-list">
+          <div class="rp-action" onclick="openTriage()">
+            <div class="rp-action-icon">📋</div>
+            <div class="rp-action-text"><strong>Triage inbox</strong><span>Process tasks one at a time</span></div>
+          </div>
+          <div class="rp-action" onclick="showRPGMS()">
+            <div class="rp-action-icon">🫐</div>
+            <div class="rp-action-text"><strong>Quick Berry</strong><span>AI picks something quick from home</span></div>
+          </div>
+          <div class="rp-action" onclick="showRPDump()">
+            <div class="rp-action-icon">✦</div>
+            <div class="rp-action-text"><strong>Brain dump</strong><span>Type a messy list, AI sorts it</span></div>
+          </div>
+          <div class="rp-action" onclick="switchTab('priority',document.querySelectorAll('.tab')[2]);showRPWeek()">
+            <div class="rp-action-icon">📅</div>
+            <div class="rp-action-text"><strong>Plan my week</strong><span>AI picks from your Prioritized backlog</span></div>
+          </div>
+          <div class="rp-action" onclick="switchTab('calls',document.querySelector('[onclick*=\'calls\']'))">
+            <div class="rp-action-icon">📞</div>
+            <div class="rp-action-text"><strong>Call Sheet</strong><span>All your pending calls and messages</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="rp-state" id="rp-add"></div>
+      <div class="rp-state" id="rp-dump">
+        <div class="dump-sub">Type anything. AI will sort it out.</div>
+        <textarea class="inp" id="dumpInput" style="height:110px" placeholder="Just write naturally. Mention urgency, timing, or 'don't forget' and AI will sort the rest.&#10;e.g. call pediatrician today — urgent, reseed lawn before fall, email contractor this week"></textarea>
+        <div class="ai-err" id="dumpErr"></div>
+        <button class="dump-go" id="dumpGoBtn" onclick="runDump()"><span>✦</span> Triage these</button>
+        <div id="dumpLoadingWrap" style="display:none"><div class="spin-wrap"><div class="bread">🫐</div><div class="spin-note">Reading between the lines…</div></div></div>
+        <div id="dumpReview" style="display:none">
+          <div class="review-lbl">Review suggestions</div>
+          <div id="rcards"></div>
+          <button class="commit-btn" id="commitBtn" onclick="commitDump()" disabled>Add accepted tasks</button>
+        </div>
+      </div>
+      <div class="rp-state" id="rp-week">
+        <div id="weekLoadingWrap"><div class="spin-wrap"><div class="bread">🫐</div><div class="spin-note">Thinking about your week…</div></div></div>
+        <div class="ai-err" id="weekErr"></div>
+        <div id="weekReview" style="display:none">
+          <div class="review-lbl">Suggested for this week</div>
+          <div id="weekRcards"></div>
+          <button class="commit-btn" id="weekCommitBtn" onclick="commitWeek()" disabled>Move accepted to This Week</button>
+        </div>
+      </div>
+      <div class="rp-state" id="rp-unstuck">
+        <div style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:4px;">You're stuck on</div>
+        <div style="font-family:var(--serif);font-size:21px;font-weight:400;font-style:italic;color:var(--crust);margin-bottom:20px;line-height:1.3;" id="unstuckTitle"></div>
+        <div id="unstuckLoadingWrap"><div class="spin-wrap" style="padding:12px 0 16px"><div style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--dim);margin-bottom:14px;">Thinking this through…</div><div class="shim"></div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div></div>
+        <div class="ai-err" id="unstuckErr"></div>
+        <div id="unstuckContent" style="display:none">
+          <div class="brief-section"><div class="brief-lbl">What this actually involves</div><div class="brief-body" id="bWhat"></div></div>
+          <div class="brief-section"><div class="brief-lbl">What actually matters</div><div class="brief-body" id="bMatters"></div></div>
+          <div class="brief-section"><div class="brief-lbl">Your next move</div><div class="next-box"><div class="next-text" id="bNext"></div></div></div>
+          <button class="rp-btn-ghost" onclick="showRP('welcome')">← Back</button>
+        </div>
+      </div>
+      <div class="rp-state" id="rp-gms">
+        <div id="gmsLoadingWrap"><div class="spin-wrap"><div class="bread">🫐</div><div class="spin-note">Looking at what fits right now…</div></div></div>
+        <div class="ai-err" id="gmsErr"></div>
+        <div id="gmsContent" style="display:none">
+          <div class="gms-kicker" style="margin-bottom:8px;">Try this one</div>
+          <div id="gmsCard"></div>
+          <div class="gms-why" id="gmsWhy" style="margin-top:10px;font-size:13px;color:var(--mid);font-style:italic;"></div>
+          <div class="gms-actions" style="margin-top:14px;">
+            <button class="gms-do" onclick="markGMSDone()">✓ Done / on it</button>
+            <button class="gms-skip" onclick="runGMS()">Try another</button>
+          </div>
+        </div>
+        <div id="gmsEmpty" style="display:none;text-align:center;padding:24px 0;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--mid);line-height:1.7;">No 🫐 berries marked yet.<br>Mark tasks as quick wins to see them here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TRIAGE OVERLAY (fullscreen, z-index above everything) ── -->
+
+
+<!-- QUICK BERRY SHEET (mobile) -->
+<div class="overlay mobile-only" id="gmsOverlay" onclick="bgClose('gmsOverlay',event)">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Quick Berry 🫐</div>
+    <div id="gmsLoadingWrapM"><div class="spin-wrap"><div class="bread">🫐</div><div class="spin-note">Finding a good blueberry…</div></div></div>
+    <div class="ai-err" id="gmsErrM"></div>
+    <div id="gmsContentM" style="display:none">
+      <div class="gms-kicker" style="margin-bottom:8px;">Try this one</div>
+      <div id="gmsCardM"></div>
+      <div class="gms-why" id="gmsWhyM" style="margin-top:10px;font-size:13px;color:var(--mid);font-style:italic;"></div>
+      <div class="gms-actions" style="margin-top:14px;">
+        <button class="gms-do" onclick="markGMSDoneMobile()">✓ Done / on it</button>
+        <button class="gms-skip" onclick="runGMSMobile()">Try another</button>
+      </div>
+    </div>
+    <div id="gmsEmptyM" style="display:none;text-align:center;padding:24px 0;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--mid);line-height:1.7;">No 🫐 berries marked yet.<br>Mark tasks as quick wins to see them here.</div>
+  </div>
+</div>
+
+<!-- UNSTUCK SHEET (mobile) -->
+<div class="overlay mobile-only" id="unstuckOverlay" onclick="bgClose('unstuckOverlay',event)">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Breaking the block</div>
+    <div style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:4px;">You're stuck on</div>
+    <div style="font-family:var(--serif);font-size:19px;font-weight:400;font-style:italic;color:var(--crust);margin-bottom:18px;line-height:1.3;" id="unstuckTitleM"></div>
+    <div id="unstuckLoadingWrapM"><div class="spin-wrap" style="padding:12px 0 16px"><div style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--dim);margin-bottom:14px;">Thinking this through…</div><div class="shim"></div><div class="shim"></div><div class="shim"></div></div></div>
+    <div class="ai-err" id="unstuckErrM"></div>
+    <div id="unstuckContentM" style="display:none">
+      <div class="brief-section"><div class="brief-lbl">What this actually involves</div><div class="brief-body" id="bWhatM"></div></div>
+      <div class="brief-section"><div class="brief-lbl">What actually matters</div><div class="brief-body" id="bMattersM"></div></div>
+      <div class="brief-section"><div class="brief-lbl">Your next move</div><div class="next-box"><div class="next-text" id="bNextM"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BRAIN DUMP SHEET (mobile) -->
+<div class="overlay mobile-only" id="dumpOverlay" onclick="bgClose('dumpOverlay',event)">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Brain dump</div>
+    <div class="dump-sub">Dump the whole basket. 🫐</div>
+    <textarea class="inp" id="dumpInputMobile" style="height:110px" placeholder="Just write naturally — urgency, timing, 'don't forget'…&#10;e.g. call pediatrician today, reseed lawn before fall, email contractor this week"></textarea>
+    <div class="ai-err" id="dumpErrMobile"></div>
+    <button class="dump-go" id="dumpGoBtnMobile" onclick="runDumpMobile()"><span>✦</span> Triage these</button>
+    <div id="dumpLoadingWrapMobile" style="display:none"><div class="spin-wrap"><div class="bread">🫐</div><div class="spin-note">Sorting the blueberries…</div></div></div>
+    <div id="dumpReviewMobile" style="display:none">
+      <div class="review-lbl">Review suggestions</div>
+      <div id="rcardsMobile"></div>
+      <button class="commit-btn" id="commitBtnMobile" onclick="commitDumpMobile()" disabled>Add accepted tasks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TASK SHEET (mobile) -->
+<div class="overlay mobile-only" id="addOverlay" onclick="bgClose('addOverlay',event)">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">New berry</div>
+    <div id="addFormInner"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const DEFAULT_TAGS=[{id:'Work',c:'var(--tw)',bg:'var(--tw-lt)'},{id:'Home',c:'var(--th)',bg:'var(--th-lt)'},{id:'Errands',c:'var(--te)',bg:'var(--te-lt)'},{id:'Writing',c:'var(--tr)',bg:'var(--tr-lt)'},{id:'Health',c:'var(--tk)',bg:'var(--tk-lt)'},{id:'Call Sheet',c:'var(--tc)',bg:'var(--tc-lt)'}];
+const CUSTOM_TAG_COLORS=['#7a9ec0','#7aaa80','#c07a50','#9a7ab0','#c07080','#7aaa9a','#b09050','#c08070'];
+let customTags=JSON.parse(localStorage.getItem('daily-custom-tags')||'[]');
+function allTags(){return[...DEFAULT_TAGS,...customTags];}
+let TAGS=allTags();
+function saveCustomTags(){localStorage.setItem('daily-custom-tags',JSON.stringify(customTags));TAGS=allTags();}
+function addCustomTag(label){
+  const l=label.trim();
+  if(!l||allTags().find(t=>t.id.toLowerCase()===l.toLowerCase()))return false;
+  const c=CUSTOM_TAG_COLORS[customTags.length%CUSTOM_TAG_COLORS.length];
+  customTags.push({id:l,c:c,bg:c+'22',custom:true});
+  saveCustomTags();return true;
+}
+const PRI={1:{label:'Critical',cls:'c-overdue'},2:{label:'High',cls:'c-today'},3:{label:'Low',cls:'c-later'}};
+
+let tasks=JSON.parse(localStorage.getItem('daily-v7')||'[]');
+let selPri=2,selTags=[],selDest='inbox',selQuickable=false;
+let expanded={},editOpen={},activeTag=null,gmsTaskId=null;
+let weekSuggestions=[],dumpSuggestions=[],recentGMSIds=[],activePriFilter=null,completedOpen={};
+let currentTab='week';
+
+const save=()=>localStorage.setItem('daily-v7',JSON.stringify(tasks));
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const isDesktop=()=>window.innerWidth>=820;
+function daysUntil(d){if(!d)return null;const n=new Date();n.setHours(0,0,0,0);return Math.round((new Date(d+'T00:00:00')-n)/86400000);}
+function dueLabel(d){const n=daysUntil(d);if(n===null)return null;if(n<0)return{text:`${Math.abs(n)}d overdue`,cls:'c-overdue'};if(n===0)return{text:'Today',cls:'c-today'};if(n<=3)return{text:`In ${n}d`,cls:'c-soon'};return{text:d,cls:'c-later'};}
+function urgScore(t){const d=daysUntil(t.due),p=(5-t.priority)*10;if(d===null)return p;if(d<0)return 100+p;return p+Math.max(0,20-d*2);}
+function tagChips(tags){return(tags||[]).map(id=>{const t=allTags().find(x=>x.id===id);return t?`<span class="chip" style="background:${t.bg};color:${t.c}">${id}</span>`:`<span class="chip c-later">${id}</span>`;}).join('');}
+function endOfWeek(){const d=new Date();d.setDate(d.getDate()+(7-d.getDay()));return d.toISOString().slice(0,10);}
+
+// ── RIGHT PANEL ───────────────────────────────────────────
+function showRP(state,title,sub){
+  document.querySelectorAll('.rp-state').forEach(el=>el.classList.remove('on'));
+  const el=document.getElementById('rp-'+state);
+  if(el)el.classList.add('on');
+  if(title)document.getElementById('rpTitle').textContent=title;
+  if(sub!==undefined)document.getElementById('rpSub').textContent=sub||'';
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────
+function switchTab(id,btn){
+  currentTab=id;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  renderAll();
+}
+
+// ── OVERDUE SECTION ──────────────────────────────────────
+let rescheduleOpen={};
+
+function renderOverdueCard(t){
+  const hasN=t.notes&&t.notes.trim();
+  const hasS=t.subtasks&&t.subtasks.length>0;
+  const exp=expanded[t.id];
+  const edOpen=editOpen[t.id];
+  const doneSubs=t.subtasks?t.subtasks.filter(s=>s.done).length:0;
+  const rsOpen=rescheduleOpen[t.id];
+  return`<div class="card overdue" id="c${t.id}">
+    <div class="card-main" onclick="toggleExp('${t.id}')">
+      <div class="expand-arrow ${(hasN||hasS||!t.done)?(exp?'open':''):'ghost'}">▶</div>
+      <div class="check ${t.done?'on':''}" onclick="toggleDone('${t.id}',event)"></div>
+      <div class="pbar pb${t.priority||2}"></div>
+      <div class="card-body">
+        <div class="card-text">${esc(t.text)}</div>
+        <div class="card-meta">
+          <span class="chip c-overdue">${Math.abs(daysUntil(t.due))}d overdue</span>
+          ${tagChips(t.tags)}
+          ${hasS?`<span class="chip c-later">${doneSubs}/${t.subtasks.length}</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="overdue-actions">
+      <button class="overdue-btn reschedule" onclick="toggleReschedule('${t.id}',event)">📅 Reschedule</button>
+      <button class="overdue-btn thisweek" onclick="overdueToWeek('${t.id}',event)">→ This Week</button>
+    </div>
+    ${rsOpen?`<div class="reschedule-row" onclick="event.stopPropagation()">
+      <input class="reschedule-inp" type="date" id="rs-${t.id}" onchange="this.setAttribute('data-val',this.value)" oninput="this.setAttribute('data-val',this.value)"/>
+      <button class="reschedule-ok" onclick="applyReschedule('${t.id}',event)">Set</button>
+    </div>`:''}
+    <div class="card-panel ${exp?'open':''}">
+      <div class="panel-edit ${edOpen?'open':''}" onclick="event.stopPropagation()">
+        <div class="pe-field"><label class="pe-lbl">Task</label><input class="pe-inp" type="text" value="${esc(t.text)}" onchange="editField('${t.id}','text',this.value)"/></div>
+        <div class="pe-field"><label class="pe-lbl">Notes</label><textarea class="pe-inp" onchange="editField('${t.id}','notes',this.value)">${esc(t.notes||'')}</textarea></div>
+        <div class="pe-field"><label class="pe-lbl">Due date</label>
+          <div class="pe-due-row">
+            <input class="pe-due-inp" type="date" value="${t.due||''}" onchange="setTaskDue('${t.id}',this.value)" id="due-${t.id}"/>
+            <button class="pe-clear" onclick="setTaskDue('${t.id}','');document.getElementById('due-${t.id}').value=''">Clear</button>
+          </div>
+        </div>
+        <div class="pe-field"><label class="pe-lbl">Priority</label>
+          <div class="pe-pri-row">
+            ${[1,2,3].map(p=>`<button class="pe-pri-btn ${t.priority===p?'s'+p:''}" onclick="editField('${t.id}','priority',${p});renderAll()">${{1:'Critical',2:'High',3:'Low'}[p]}</button>`).join('')}
+          </div>
+        </div>
+        <div class="pe-field"><label class="pe-lbl">Tags</label>
+          <div class="pe-tag-row">
+            ${allTags().map(tag=>{const on=(t.tags||[]).includes(tag.id);return`<button class="pe-tag-btn" style="${on?`background:${tag.bg};border-color:${tag.c};color:${tag.c}`:''}" onclick="toggleTaskTag('${t.id}','${tag.id}',this)">${tag.id}</button>`;}).join('')}
+          </div>
+        </div>
+        <button class="pe-delete" onclick="deleteTask('${t.id}',event)">Delete task</button>
+      </div>
+      ${hasN&&!edOpen?`<div style="padding:10px 14px;font-family:var(--serif);font-style:italic;font-weight:300;font-size:13px;color:var(--mid);line-height:1.65;">${esc(t.notes)}</div>`:''}
+      ${hasS?`<div class="panel-subs">${t.subtasks.map((s,i)=>`<div class="sub-row" onclick="toggleSub('${t.id}',${i},event)"><div class="sub-check ${s.done?'on':''}"></div><div class="sub-text ${s.done?'done':''}">${esc(s.text)}</div></div>`).join('')}</div>`:''}
+      <div class="panel-actions">
+        <button class="panel-btn ${editOpen[t.id]?'accent':''}" onclick="toggleEdit('${t.id}',event)">${editOpen[t.id]?'✓ Done editing':'✏️ Edit'}</button>
+        <button class="panel-btn" onclick="openUnstuck('${t.id}',event)">🪨 Stuck</button>
+        <button class="panel-btn ${t.quickable?'accent':''}" onclick="toggleTaskQuickable('${t.id}',event)">🫐 ${t.quickable?'Quick ✓':'Quick win'}</button>
+        ${t.bucket==='inbox'?`
+          <button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritize</button>
+          <button class="panel-btn" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>
+          <button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`:''}
+        ${t.bucket==='prioritized'?`
+          <button class="panel-btn" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>
+          <button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`:''}
+        ${t.bucket==='week'?`
+          <button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritized</button>
+          <button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleReschedule(id,e){
+  e.stopPropagation();
+  rescheduleOpen[id]=!rescheduleOpen[id];
+  renderAll();
+  if(rescheduleOpen[id]) setTimeout(()=>{const el=document.getElementById('rs-'+id);if(el)el.focus();},50);
+}
+function applyReschedule(id,e){
+  e.stopPropagation();
+  const inp=document.getElementById('rs-'+id);
+  if(!inp)return;
+  const val=inp.getAttribute('data-val')||inp.value;
+  if(!val)return;
+  const t=tasks.find(x=>x.id===id);
+  if(t){t.due=val;save();}
+  rescheduleOpen[id]=false;
+  renderAll();
+}
+function overdueToWeek(id,e){
+  e.stopPropagation();
+  const t=tasks.find(x=>x.id===id);
+  if(t){t.bucket='week';t.due='';save();}
+  renderAll();
+}
+
+function getOverdue(bucketFilter){
+  return tasks.filter(t=>{
+    if(t.done)return false;
+    if(bucketFilter&&!bucketFilter.includes(t.bucket))return false;
+    const d=daysUntil(t.due);
+    return d!==null&&d<0;
+  });
+}
+
+function renderOverdueSection(overdueList){
+  if(!overdueList.length)return'';
+  return`<div class="overdue-label">⚠ Overdue</div>`+overdueList.map(renderOverdueCard).join('');
+}
+
+// ── RENDER CARD ───────────────────────────────────────────
+function renderCard(t){
+  const due=dueLabel(t.due);
+  const hasN=t.notes&&t.notes.trim();
+  const hasS=t.subtasks&&t.subtasks.length>0;
+  const exp=expanded[t.id];
+  const edOpen=editOpen[t.id];
+  const expandable=hasN||hasS||!t.done;
+  const doneSubs=t.subtasks?t.subtasks.filter(s=>s.done).length:0;
+  let panelBtns='';
+  if(!t.done){
+    panelBtns+=`<button class="panel-btn ${edOpen?'accent':''}" onclick="toggleEdit('${t.id}',event)">${edOpen?'✓ Done editing':'✏️ Edit'}</button>`;
+    panelBtns+=`<button class="panel-btn" onclick="openUnstuck('${t.id}',event)">🪨 Stuck</button>`;
+    panelBtns+=`<button class="panel-btn ${t.quickable?'accent':''}" onclick="toggleTaskQuickable('${t.id}',event)">🫐 ${t.quickable?'Quick ✓':'Quick win'}</button>`;
+    if(t.bucket==='inbox'){
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritize</button>`;
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>`;
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`;
+    }else if(t.bucket==='prioritized'){
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>`;
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`;
+    }else if(t.bucket==='week'){
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritized</button>`;
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','burner',event)">🕯 Burner</button>`;
+    }else if(t.bucket==='burner'){
+      panelBtns+=`<button class="panel-btn accent" onclick="moveTask('${t.id}','week',event)">📅 This Week</button>`;
+      panelBtns+=`<button class="panel-btn" onclick="moveTask('${t.id}','prioritized',event)">↑ Prioritized</button>`;
+    }
+  }
+  return`<div class="card" id="c${t.id}">
+    <div class="card-main" onclick="toggleExp('${t.id}')">
+      <div class="expand-arrow ${expandable?(exp?'open':''):'ghost'}">▶</div>
+      <div class="check ${t.done?'on':''}" onclick="toggleDone('${t.id}',event)"></div>
+      <div class="pbar pb${t.priority||3}"></div>
+      <div class="card-body">
+        <div class="card-text ${t.done?'done':''}">${esc(t.text)}</div>
+        <div class="card-meta">
+          ${due?`<span class="chip ${due.cls}">${due.text}</span>`:''}
+          ${tagChips(t.tags)}
+          ${hasS?`<span class="chip c-later">${doneSubs}/${t.subtasks.length}</span>`:''}
+          ${t.quickable?`<span class="chip c-soon">🫐</span>`:''}
+        </div>
+      </div>
+    </div>
+    ${expandable?`<div class="card-panel ${exp?'open':''}">
+      <div class="panel-edit ${edOpen?'open':''}" onclick="event.stopPropagation()">
+        <div class="pe-field"><label class="pe-lbl">Task</label><input class="pe-inp" type="text" value="${esc(t.text)}" onchange="editField('${t.id}','text',this.value)"/></div>
+        <div class="pe-field"><label class="pe-lbl">Notes</label><textarea class="pe-inp" onchange="editField('${t.id}','notes',this.value)">${esc(t.notes||'')}</textarea></div>
+        <div class="pe-field"><label class="pe-lbl">Due date</label>
+          <div class="pe-due-row">
+            <input class="pe-due-inp" type="date" value="${t.due||''}" onchange="setTaskDue('${t.id}',this.value)" id="due-${t.id}"/>
+            <button class="pe-clear" onclick="setTaskDue('${t.id}','');document.getElementById('due-${t.id}').value=''">Clear</button>
+          </div>
+        </div>
+        <div class="pe-field"><label class="pe-lbl">Priority</label>
+          <div class="pe-pri-row">
+            ${[1,2,3].map(p=>`<button class="pe-pri-btn ${t.priority===p?'s'+p:''}" onclick="editField('${t.id}','priority',${p});renderAll()">${{1:'Critical',2:'High',3:'Low'}[p]}</button>`).join('')}
+          </div>
+        </div>
+        <div class="pe-field"><label class="pe-lbl">Tags</label>
+          <div class="pe-tag-row">
+            ${allTags().map(tag=>{const on=(t.tags||[]).includes(tag.id);return`<button class="pe-tag-btn" style="${on?`background:${tag.bg};border-color:${tag.c};color:${tag.c}`:''}" onclick="toggleTaskTag('${t.id}','${tag.id}',this)">${tag.id}</button>`;}).join('')}
+          </div>
+        </div>
+        <button class="pe-delete" onclick="deleteTask('${t.id}',event)">Delete task</button>
+      </div>
+      ${hasN&&!edOpen?`<div class="panel-notes" style="padding:10px 14px;font-family:var(--serif);font-style:italic;font-weight:300;font-size:13px;color:var(--mid);line-height:1.65;">${esc(t.notes)}</div>`:''}
+      ${hasS?`<div class="panel-subs">${t.subtasks.map((s,i)=>`<div class="sub-row" onclick="toggleSub('${t.id}',${i},event)"><div class="sub-check ${s.done?'on':''}"></div><div class="sub-text ${s.done?'done':''}">${esc(s.text)}</div></div>`).join('')}</div>`:''}
+      ${panelBtns?`<div class="panel-actions">${panelBtns}</div>`:''}
+    </div>`:''}
+  </div>`;
+}
+
+// ── RENDER PAGES ──────────────────────────────────────────
+function renderCompletedSection(doneItems, sectionKey){
+  if(!doneItems.length) return '';
+  const open = completedOpen[sectionKey];
+  return `<button class="completed-toggle ${open?'open':''}" onclick="toggleCompleted('${sectionKey}')">
+    <span style="margin-right:4px;">▶</span>Completed (${doneItems.length})<span class="ct-arrow">▶</span>
+  </button>
+  <div class="completed-list ${open?'open':''}" id="completed-${sectionKey}">
+    ${doneItems.map(renderCard).join('')}
+  </div>`;
+}
+function toggleCompleted(key){
+  completedOpen[key]=!completedOpen[key];
+  renderAll();
+}
+
+function renderAll(){renderInbox();renderWeek();renderTagsPage();renderBurner();renderCalls();renderPriority();updateBadges();}
+
+function renderInbox(){
+  const open=tasks.filter(t=>t.bucket==='inbox'&&!t.done).sort((a,b)=>urgScore(b)-urgScore(a));
+  const done=tasks.filter(t=>t.bucket==='inbox'&&t.done);
+  document.getElementById('inboxBanner').style.display=open.length?'block':'none';
+  let h='';
+  if(!open.length&&!done.length)h='<div class="empty">Inbox is clear.<br>Nice.</div>';
+  else{
+    const overdue=getOverdue(['inbox']);
+    const nonOverdue=open.filter(t=>!(daysUntil(t.due)!==null&&daysUntil(t.due)<0));
+    h+=renderOverdueSection(overdue);
+    h+=nonOverdue.map(renderCard).join('');
+    h+=renderCompletedSection(done,'inbox');
+  }
+  document.getElementById('inboxList').innerHTML=h;
+}
+function renderWeek(){
+  const open=tasks.filter(t=>t.bucket==='week'&&!t.done).sort((a,b)=>urgScore(b)-urgScore(a));
+  const done=tasks.filter(t=>t.bucket==='week'&&t.done);
+  let h='';
+  if(!open.length&&!done.length){
+    h=`<div class="banner brown" style="margin-bottom:12px;">
+      <div class="banner-text"><strong>This week is empty</strong>Let AI pick your priorities from your backlog</div>
+      <button class="banner-btn" onclick="showRPWeek()">Suggest</button>
+    </div>
+    <div class="empty" style="padding-top:24px;">Nothing committed yet.<br>Triage your inbox or use Suggest.</div>`;
+  } else {
+    const overdue=getOverdue(['week']);
+    const nonOverdue=open.filter(t=>!(daysUntil(t.due)!==null&&daysUntil(t.due)<0));
+    h+=renderOverdueSection(overdue);
+    h+=nonOverdue.map(renderCard).join('');
+    h+=renderCompletedSection(done,'week');
+  }
+  document.getElementById('weekList').innerHTML=h;
+}
+function renderTagsPage(){
+  const usedTags=[...new Set(tasks.flatMap(t=>t.tags||[]))];
+  // Count open tasks per tag
+  const tagCounts={};
+  tasks.filter(t=>!t.done).forEach(t=>(t.tags||[]).forEach(id=>{tagCounts[id]=(tagCounts[id]||0)+1;}));
+  document.getElementById('tagFilterRow').innerHTML=allTags().filter(t=>usedTags.includes(t.id)).map(t=>{
+    const on=activeTag===t.id;
+    const count=tagCounts[t.id]||0;
+    return`<button class="tag-filter-btn" style="${on?`background:${t.bg};border-color:${t.c};color:${t.c}`:''}" onclick="setTagFilter('${t.id}')">${t.id}${count?` <span style="opacity:0.65;font-size:11px">${count}</span>`:''}</button>`;
+  }).join('');
+  const filtered=activeTag?tasks.filter(t=>!t.done&&(t.tags||[]).includes(activeTag)):tasks.filter(t=>!t.done);
+  document.getElementById('tagList').innerHTML=filtered.length?[...filtered].sort((a,b)=>urgScore(b)-urgScore(a)).map(renderCard).join(''):`<div class="empty">${activeTag?`No open tasks tagged "${activeTag}".`:'Select a tag above.'}</div>`;
+}
+function renderBurner(){
+  const open=tasks.filter(t=>t.bucket==='burner'&&!t.done);
+  const done=tasks.filter(t=>t.bucket==='burner'&&t.done);
+  let h='';
+  if(!open.length&&!done.length)h='<div class="empty">Nothing on the back burner.</div>';
+  else{h+=open.map(renderCard).join('');h+=renderCompletedSection(done,'burner');}
+  document.getElementById('burnerList').innerHTML=h;
+}
+function renderPriority(){
+  const PRI_LABELS={1:'Critical',2:'High',3:'Low'};
+  const PRI_CLASSES={1:'pf1',2:'pf2',3:'pf3'};
+  // Filter pills
+  const counts={};
+  tasks.filter(t=>!t.done&&t.bucket!=='inbox').forEach(t=>{ counts[t.priority]=(counts[t.priority]||0)+1; });
+  document.getElementById('priFilterRow').innerHTML=
+    `<button class="pri-filter-btn${activePriFilter===null?' pf1':''}" style="${activePriFilter===null?'':'background:transparent;border-color:var(--border);color:var(--mid)'}" onclick="setPriFilter(null)">All</button>`
+    +[1,2,3].filter(p=>counts[p]).map(p=>{
+      const on=activePriFilter===p;
+      return`<button class="pri-filter-btn${on?' '+PRI_CLASSES[p]:''}" onclick="setPriFilter(${p})">${PRI_LABELS[p]} <span style="opacity:0.7">${counts[p]}</span></button>`;
+    }).join('');
+  // Task list
+  let open=tasks.filter(t=>!t.done&&t.bucket!=='inbox');
+  if(activePriFilter!==null) open=open.filter(t=>t.priority===activePriFilter);
+  open.sort((a,b)=>a.priority-b.priority||urgScore(b)-urgScore(a));
+  const overdue=open.filter(t=>daysUntil(t.due)!==null&&daysUntil(t.due)<0);
+  const nonOverdue=open.filter(t=>!(daysUntil(t.due)!==null&&daysUntil(t.due)<0));
+  let h='';
+  if(!open.length) h=`<div class="empty">${activePriFilter!==null?'No open tasks at this priority.':'No open tasks.'}</div>`;
+  else{h+=renderOverdueSection(overdue);h+=nonOverdue.map(renderCard).join('');}
+  document.getElementById('priorityList').innerHTML=h;
+}
+function setPriFilter(p){activePriFilter=p;renderPriority();}
+
+function renderCalls(){
+  const open=tasks.filter(t=>!t.done&&(t.tags||[]).includes('Call Sheet')).sort((a,b)=>urgScore(b)-urgScore(a));
+  const done=tasks.filter(t=>t.done&&(t.tags||[]).includes('Call Sheet'));
+  let h='';
+  if(!open.length&&!done.length)h='<div class="empty">No calls or messages queued.<br>Add one or tag a task "Call Sheet".</div>';
+  else{h+=open.map(renderCard).join('');if(done.length){h+=`<div class="sec-label">Completed</div>`;h+=done.map(renderCard).join('');}}
+  document.getElementById('callsList').innerHTML=h;
+}
+function updateBadges(){
+  const inboxCount=tasks.filter(t=>t.bucket==='inbox'&&!t.done).length;
+  document.getElementById('badge-inbox').textContent=inboxCount;
+  // Highlight inbox tab badge when there are tasks to triage
+  const inboxTab=document.querySelector('.tab[onclick*="inbox"]');
+  if(inboxTab){inboxTab.classList.toggle('needs-triage',inboxCount>0&&!inboxTab.classList.contains('on'));}
+  document.getElementById('badge-week').textContent=tasks.filter(t=>t.bucket==='week'&&!t.done).length;
+  document.getElementById('badge-burner').textContent=tasks.filter(t=>t.bucket==='burner'&&!t.done).length;
+  document.getElementById('badge-calls').textContent=tasks.filter(t=>!t.done&&(t.tags||[]).includes('Call Sheet')).length;
+  const tagsEl=document.getElementById('badge-tags');
+  if(tagsEl)tagsEl.textContent=tasks.filter(t=>!t.done&&(t.tags||[]).length>0).length;
+  document.getElementById('badge-priority').textContent=tasks.filter(t=>!t.done&&t.bucket!=='inbox').length;
+}
+function setTagFilter(id){activeTag=activeTag===id?null:id;renderTagsPage();}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function toggleExp(id){expanded[id]=!expanded[id];renderAll();}
+function toggleDone(id,e){e.stopPropagation();const t=tasks.find(x=>x.id===id);if(t){t.done=!t.done;save();renderAll();}}
+function toggleSub(tid,i,e){e.stopPropagation();const t=tasks.find(x=>x.id===tid);if(t&&t.subtasks[i]){t.subtasks[i].done=!t.subtasks[i].done;save();renderAll();}}
+function moveTask(id,dest,e){e.stopPropagation();const t=tasks.find(x=>x.id===id);if(t){t.bucket=dest;save();expanded[id]=false;renderAll();}}
+function setTaskDue(id,val){const t=tasks.find(x=>x.id===id);if(t){t.due=val;save();renderAll();}}
+function toggleEdit(id,e){e.stopPropagation();editOpen[id]=!editOpen[id];expanded[id]=true;renderAll();}
+function editField(id,field,val){const t=tasks.find(x=>x.id===id);if(t){t[field]=field==='priority'?parseInt(val):val;save();}}
+function toggleTaskTag(id,tagId,btn){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  const on=t.tags.includes(tagId);
+  t.tags=on?t.tags.filter(x=>x!==tagId):[...t.tags,tagId];
+  save();
+  const tag=allTags().find(x=>x.id===tagId);
+  if(tag){btn.style.background=t.tags.includes(tagId)?tag.bg:'';btn.style.borderColor=t.tags.includes(tagId)?tag.c:'';btn.style.color=t.tags.includes(tagId)?tag.c:'';}
+  renderAll();
+}
+function deleteTask(id,e){e.stopPropagation();if(!confirm('Delete this task?'))return;tasks=tasks.filter(x=>x.id!==id);save();renderAll();}
+function toggleTaskQuickable(id,e){e.stopPropagation();const t=tasks.find(x=>x.id===id);if(t){t.quickable=!t.quickable;save();renderAll();}}
+
+// ── OVERLAY HELPERS ───────────────────────────────────────
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function bgClose(id,e){if(e.target===document.getElementById(id))closeOverlay(id);}
+
+// ── TRIAGE ────────────────────────────────────────────────
+let triageQueue=[],triageIndex=0,triageTotal=0;
+let tPri=2,tTags=[],tDest='week',tDue='',tNotes='';
+
+function openTriage(){
+  triageQueue=tasks.filter(t=>t.bucket==='inbox'&&!t.done);
+  if(!triageQueue.length){alert('No inbox tasks to triage.');return;}
+  triageTotal=triageQueue.length;
+  triageIndex=0;
+  document.getElementById('triageInline').style.display='block';
+  document.getElementById('inboxList').style.display='none';
+  document.getElementById('inboxBanner').style.display='none';
+  renderTriageCard();
+}
+function closeTriage(){
+  document.getElementById('triageInline').style.display='none';
+  document.getElementById('inboxList').style.display='block';
+  document.getElementById('inboxBanner').style.display='none';
+  renderAll();
+}
+
+function renderTriageCard(){
+  const container=document.getElementById('triageCard');
+  const pct=Math.round((triageIndex/triageTotal)*100);
+
+  if(triageIndex>=triageQueue.length){
+    container.innerHTML=`<div class="triage-card-wrap">
+      <div class="triage-done-inline">
+        <div class="triage-done-icon">✦</div>
+        <div class="triage-done-h">Inbox clear</div>
+        <div class="triage-done-sub">All ${triageTotal} task${triageTotal!==1?'s':''} sorted.</div>
+        <button class="triage-done-btn" onclick="closeTriage()">Back to inbox</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const t=triageQueue[triageIndex];
+  tPri=t.priority||2;
+  tTags=[...(t.tags||[])];
+  tDest='inbox';
+  tDue=t.due||'';
+  tNotes=t.notes||'';
+
+  const tagBtns=allTags().map(tag=>{
+    const on=tTags.includes(tag.id);
+    return`<button class="triage-tag-btn" id="ttag-${tag.id}" style="${on?`background:${tag.bg};border-color:${tag.c};color:${tag.c}`:''}" onclick="toggleTriageTag('${tag.id}')">${tag.id}</button>`;
+  }).join('');
+
+  container.innerHTML=`<div class="triage-card-wrap">
+    <div class="triage-card-text" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">${esc(t.text)}<button class="triage-exit-btn" onclick="closeTriage()" style="flex-shrink:0;margin-top:2px;">Exit</button></div>
+    <div class="triage-fields">
+      <div class="triage-section">
+        <span class="triage-lbl">Priority</span>
+        <div class="triage-pri-row">
+          <button class="triage-pri-btn ${tPri===1?'s1':''}" data-tp="1" onclick="setTPri(1)">Critical</button>
+          <button class="triage-pri-btn ${tPri===2?'s2':''}" data-tp="2" onclick="setTPri(2)">High</button>
+          <button class="triage-pri-btn ${tPri===3?'s3':''}" data-tp="3" onclick="setTPri(3)">Low</button>
+        </div>
+      </div>
+      <div class="triage-section">
+        <span class="triage-lbl">Tags</span>
+        <div class="triage-tag-row">${tagBtns}</div>
+      </div>
+      <div class="triage-section">
+        <span class="triage-lbl">Due date</span>
+        <input class="triage-due-inp" type="date" value="${tDue}" onchange="tDue=this.value"/>
+      </div>
+      <div class="triage-section">
+        <span class="triage-lbl">Notes</span>
+        <textarea class="triage-notes-inp" placeholder="Add context…" onchange="tNotes=this.value">${esc(tNotes)}</textarea>
+      </div>
+    </div>
+    <div class="triage-card-footer">
+      <div class="triage-progress-pip" style="margin-bottom:10px;">
+        <div class="triage-prog-bar"><div class="triage-prog-fill" style="width:${pct}%"></div></div>
+        <span class="triage-count">${triageIndex+1} of ${triageTotal}</span>
+      </div>
+      <div class="triage-dest-row">
+        <button class="triage-dest-btn" data-td="week" onclick="setTriageDest('week')"><span class="td-icon">📅</span>This Week</button>
+        <button class="triage-dest-btn sel" data-td="inbox" onclick="setTriageDest('inbox')"><span class="td-icon">↑</span>Prioritize</button>
+        <button class="triage-dest-btn" data-td="burner" onclick="setTriageDest('burner')"><span class="td-icon">🕯</span>Back Burner</button>
+        <button class="triage-dest-btn" data-td="delete" onclick="setTriageDest('delete')"><span class="td-icon">🗑</span>Delete</button>
+      </div>
+      <button class="triage-send-btn" id="triageSendBtn" onclick="triageSend()">→ Prioritize</button>
+    </div>
+  </div>`;
+}
+
+function setTPri(p){
+  tPri=p;
+  document.querySelectorAll('.triage-pri-btn').forEach(b=>{
+    const bp=parseInt(b.dataset.tp);
+    b.className='triage-pri-btn'+(bp===p?` s${p}`:'');
+  });
+}
+function toggleTriageTag(id){
+  tTags=tTags.includes(id)?tTags.filter(x=>x!==id):[...tTags,id];
+  const tag=allTags().find(x=>x.id===id);
+  const btn=document.getElementById('ttag-'+id);
+  if(btn&&tag){
+    btn.style.background=tTags.includes(id)?tag.bg:'';
+    btn.style.borderColor=tTags.includes(id)?tag.c:'';
+    btn.style.color=tTags.includes(id)?tag.c:'';
+  }
+}
+function setTriageDest(d){
+  tDest=d;
+  refreshTriageDest();
+}
+function refreshTriageDest(){
+  document.querySelectorAll('.triage-dest-btn').forEach(b=>b.classList.toggle('sel',b.dataset.td===tDest));
+  const labels={week:'→ This Week',inbox:'→ Prioritize',burner:'→ Back Burner',delete:'→ Delete'};
+  const btn=document.getElementById('triageSendBtn');
+  if(btn)btn.textContent=labels[tDest]||'→ Send';
+}
+function triageSend(){
+  const t=triageQueue[triageIndex];
+  if(!t)return;
+  // Animate the card out first
+  const wrap=document.querySelector('.triage-card-wrap');
+  if(wrap){
+    wrap.classList.add('sending');
+    setTimeout(()=>{
+      if(tDest==='delete'){
+        tasks=tasks.filter(x=>x.id!==t.id);
+      }else{
+        const task=tasks.find(x=>x.id===t.id);
+        const dest=tDest==='inbox'?'prioritized':tDest;
+        if(task){task.priority=tPri;task.tags=tTags;task.due=tDue;task.notes=tNotes;task.bucket=dest;}
+      }
+      save();
+      triageIndex++;
+      renderTriageCard();
+      const pg=document.getElementById("page-inbox");
+      if(pg)pg.scrollTo({top:0,behavior:"smooth"});
+    }, 200);
+  } else {
+    if(tDest==='delete'){
+      tasks=tasks.filter(x=>x.id!==t.id);
+    }else{
+      const task=tasks.find(x=>x.id===t.id);
+      const dest=tDest==='inbox'?'prioritized':tDest;
+      if(task){task.priority=tPri;task.tags=tTags;task.due=tDue;task.notes=tNotes;task.bucket=dest;}
+    }
+    save();
+    triageIndex++;
+    renderTriageCard();
+  }
+}
+
+// ── ADD TASK ──────────────────────────────────────────────
+function addFormHTML(){
+  return`<label class="lbl">What needs doing?</label>
+<input class="inp" type="text" id="iText" placeholder="e.g. Pick up sourdough starter…"/>
+<label class="lbl">Notes</label>
+<textarea class="inp" id="iNotes" placeholder="Details, context, links…"></textarea>
+<label class="lbl">Due date</label>
+<input class="inp" type="date" id="iDue"/>
+<label class="lbl">Priority</label>
+<div class="pri-grid">
+  <button class="pri-opt" data-p="1" onclick="setPri(1)"><span class="pdot" style="background:var(--jam)"></span>Critical</button>
+  <button class="pri-opt" data-p="2" onclick="setPri(2)"><span class="pdot" style="background:var(--honey)"></span>High</button>
+  <button class="pri-opt" data-p="3" onclick="setPri(3)"><span class="pdot" style="background:var(--muted)"></span>Low</button>
+</div>
+<label class="lbl">Tags</label>
+<div class="tag-row" id="tagRow"></div>
+<label class="lbl">Subtasks (one per line)</label>
+<textarea class="inp" id="iSubs" placeholder="Step one&#10;Step two"></textarea>
+<label class="lbl">Add to</label>
+<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
+  <button class="pri-opt" id="destInbox" onclick="setDest('inbox')" style="flex:1">📥 Inbox</button>
+  <button class="pri-opt" id="destWeek" onclick="setDest('week')" style="flex:1">📅 Week</button>
+  <button class="pri-opt" id="destPrioritized" onclick="setDest('prioritized')" style="flex:1">↑ Prioritized</button>
+  <button class="pri-opt" id="destBurner" onclick="setDest('burner')" style="flex:1">🕯 Burner</button>
+</div>
+<label class="lbl">Quick win?</label>
+<div style="margin-bottom:16px;">
+  <button class="qt-btn" id="quickableToggle" onclick="toggleQuickable()">
+    <span class="qt-icon">🫐</span>
+    <span class="qt-label">Under 1 hour, doable from home</span>
+    <span class="qt-check" id="qtCheck"></span>
+  </button>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
+  <input class="inp" type="text" id="newTagInput" placeholder="New tag name, then Enter…" style="margin-bottom:0;display:none;flex:1;" onkeydown="if(event.key==='Enter')commitNewTag();if(event.key==='Escape'){this.style.display='none';this.value='';}" onblur="if(!this.value.trim()){this.style.display='none';}"/>
+</div>
+<div class="sheet-actions">
+  <button class="btn-ghost" onclick="closeAdd()">Cancel</button>
+  <button class="btn-fill" onclick="submitAdd()">Add Task</button>
+</div>`;
+}
+
+function openAdd(){
+  selPri=3;selTags=[];selDest='inbox';selQuickable=false;
+  if(isDesktop()){
+    showRP('add','New berry','Fill in the details below.');
+    document.getElementById('rp-add').innerHTML=addFormHTML();
+    refreshPri();refreshQuickable();renderTags2();setDest('inbox');
+    setTimeout(()=>{const el=document.getElementById('iText');if(el)el.focus();},50);
+  }else{
+    document.getElementById('addFormInner').innerHTML=addFormHTML();
+    openOverlay('addOverlay');
+    refreshPri();refreshQuickable();renderTags2();setDest('inbox');
+    setTimeout(()=>{const el=document.getElementById('iText');if(el)el.focus();},280);
+  }
+}
+function closeAdd(){
+  selQuickable=false;
+  if(isDesktop())showRP('welcome','Good to see you','Pick something to do, or add a task.');
+  else closeOverlay('addOverlay');
+}
+function setPri(p){selPri=p;refreshPri();}
+function refreshPri(){document.querySelectorAll('.pri-opt[data-p]').forEach(b=>{const p=parseInt(b.dataset.p);b.className='pri-opt'+(p===selPri?` s${p}`:'');});}
+function toggleQuickable(){selQuickable=!selQuickable;refreshQuickable();}
+function refreshQuickable(){const btn=document.getElementById('quickableToggle');const chk=document.getElementById('qtCheck');if(!btn)return;btn.classList.toggle('on',selQuickable);if(chk)chk.textContent=selQuickable?'✓':'';}
+function renderTags2(){
+  const el=document.getElementById('tagRow');if(!el)return;
+  el.innerHTML=allTags().map(t=>{const on=selTags.includes(t.id);return`<button class="tag-opt" style="${on?`background:${t.bg};border-color:${t.c};color:${t.c}`:''}" onclick="toggleTag('${t.id}')">${t.id}</button>`;}).join('')
+    +`<button class="tag-opt tag-add-btn" onclick="promptNewTag()" title="Add tag">＋</button>`;
+}
+function promptNewTag(){const inp=document.getElementById('newTagInput');if(inp){inp.style.display=inp.style.display==='none'?'inline-block':'none';if(inp.style.display==='inline-block')inp.focus();}}
+function commitNewTag(){const inp=document.getElementById('newTagInput');if(!inp)return;const val=inp.value.trim();if(val&&addCustomTag(val)){inp.value='';inp.style.display='none';renderTags2();renderTagsPage();}}
+function toggleTag(id){selTags=selTags.includes(id)?selTags.filter(x=>x!==id):[...selTags,id];renderTags2();}
+function setDest(d){selDest=d;['inbox','week','prioritized','burner'].forEach(x=>{const el=document.getElementById('dest'+x.charAt(0).toUpperCase()+x.slice(1));if(el)el.className='pri-opt'+(x===d?' s3':'');});}
+function submitAdd(){
+  const text=document.getElementById('iText').value.trim();if(!text)return;
+  const dueVal=document.getElementById('iDue').value;
+  const subs=document.getElementById('iSubs').value.split('\n').map(s=>s.trim()).filter(Boolean).map(s=>({text:s,done:false}));
+  const newTask={id:Date.now().toString(),text,notes:document.getElementById('iNotes').value.trim(),due:dueVal,priority:selPri,tags:[...selTags],subtasks:subs,done:false,added:Date.now(),bucket:selDest,quickable:selQuickable,effort:null};
+  tasks.push(newTask);
+  save();closeAdd();renderAll();
+  if(!dueVal)suggestDueDate(newTask.id,text);
+}
+
+// ── DUE DATE SUGGESTION ───────────────────────────────────
+async function suggestDueDate(taskId,text){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:120,
+      system:`Suggest due dates only when timing is genuinely inferrable from real-world context (seasons, annual deadlines, recurring events). If not confident, return {}. Today: ${todayStr()}. Respond ONLY with JSON: {"date":"YYYY-MM-DD","reason":"short phrase"} or {}`,
+      messages:[{role:'user',content:text}]
+    })});
+    const data=await res.json();
+    const p=JSON.parse(data.content?.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
+    if(p.date&&p.reason)showDueSuggestion(taskId,p.date,p.reason);
+  }catch{}
+}
+function showDueSuggestion(taskId,date,reason){
+  const t=tasks.find(x=>x.id===taskId);if(!t||t.due)return;
+  document.querySelectorAll('.due-sug').forEach(el=>el.remove());
+  const banner=document.createElement('div');
+  banner.className='due-sug';banner.id='sug-'+taskId;
+  banner.innerHTML=`<span style="font-size:16px">⏰</span>
+    <div class="due-sug-body">
+      <div class="due-sug-text">${esc(reason)} — set <strong>${date}</strong>?</div>
+      <div class="due-sug-task">${esc(t.text)}</div>
+    </div>
+    <div class="due-sug-btns">
+      <button class="due-sug-ok" onclick="acceptDueSug('${taskId}','${date}')">Set date</button>
+      <button class="due-sug-x" onclick="dismissDueSug('${taskId}')">✕</button>
+    </div>`;
+  const page=document.querySelector('.page.on');if(page)page.insertBefore(banner,page.firstChild);
+  setTimeout(()=>dismissDueSug(taskId),12000);
+}
+function acceptDueSug(taskId,date){const t=tasks.find(x=>x.id===taskId);if(t){t.due=date;save();renderAll();}dismissDueSug(taskId);}
+function dismissDueSug(taskId){const el=document.getElementById('sug-'+taskId);if(el){el.style.opacity='0';el.style.transition='opacity 0.2s';setTimeout(()=>el.remove(),200);}}
+
+// ── BRAIN DUMP ────────────────────────────────────────────
+function showRPDump(){
+  if(!isDesktop()){
+    // Mobile — open sheet overlay
+    openOverlay('dumpOverlay');
+    document.getElementById('dumpInputMobile').value='';
+    document.getElementById('dumpErrMobile').classList.remove('show');
+    document.getElementById('dumpGoBtnMobile').style.display='flex';
+    document.getElementById('dumpGoBtnMobile').disabled=false;
+    document.getElementById('dumpLoadingWrapMobile').style.display='none';
+    document.getElementById('dumpReviewMobile').style.display='none';
+    dumpSuggestions=[];
+    setTimeout(()=>document.getElementById('dumpInputMobile').focus(),280);
+    return;
+  }
+  // Desktop — right panel
+  showRP('dump','Brain dump','Type anything. AI will sort it out.');
+  document.getElementById('dumpInput').value='';
+  document.getElementById('dumpErr').classList.remove('show');
+  document.getElementById('dumpGoBtn').style.display='flex';
+  document.getElementById('dumpGoBtn').disabled=false;
+  document.getElementById('dumpLoadingWrap').style.display='none';
+  document.getElementById('dumpReview').style.display='none';
+  dumpSuggestions=[];
+  setTimeout(()=>document.getElementById('dumpInput').focus(),50);
+}
+async function runDump(){
+  const raw=document.getElementById('dumpInput').value.trim();if(!raw)return;
+  document.getElementById('dumpGoBtn').disabled=true;
+  document.getElementById('dumpGoBtn').style.display='none';
+  document.getElementById('dumpLoadingWrap').style.display='block';
+  document.getElementById('dumpErr').classList.remove('show');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:1500,
+      system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
+Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
+priority: 1=Critical (urgent/important), 2=High (important), 3=Low (nice to do).
+bucket: "week" if urgent this week, "burner" if long-term vague, else "inbox".
+suggested_due: only if timing is genuinely inferrable and no due date is set, else null.
+If a task involves a phone call, text, email, voicemail, or any direct communication with a person, include "Call Sheet" in its tags array.
+Today: ${todayStr()}.`,
+      messages:[{role:'user',content:raw}]
+    })});
+    const data=await res.json();
+    const txt=data.content?.map(b=>b.text||'').join('').trim();
+    dumpSuggestions=JSON.parse(txt.replace(/```json|```/g,'').trim()).map((t,i)=>({...t,_id:`d${Date.now()}${i}`,_state:'pending'}));
+    document.getElementById('dumpLoadingWrap').style.display='none';
+    renderDumpRcards();
+    document.getElementById('dumpReview').style.display='block';
+  }catch{
+    document.getElementById('dumpLoadingWrap').style.display='none';
+    document.getElementById('dumpGoBtn').style.display='flex';
+    document.getElementById('dumpGoBtn').disabled=false;
+    const el=document.getElementById('dumpErr');el.textContent='Something went wrong. Try again.';el.classList.add('show');
+  }
+}
+function renderDumpRcards(){
+  document.getElementById('rcards').innerHTML=dumpSuggestions.map(t=>{
+    const chips=[PRI[t.priority]?`<span class="chip ${PRI[t.priority].cls}">${PRI[t.priority].label}</span>`:'',t.due?`<span class="chip c-later">${t.due}</span>`:'',tagChips(t.tags),t.quickable?`<span class="chip c-soon">🫐</span>`:'',`<span class="chip c-later">${t.bucket==='week'?'📅':t.bucket==='burner'?'🕯':'📥'}</span>`].join('');
+    const subs=(t.subtasks||[]).map(s=>`<div class="rsub-item">${esc(s)}</div>`).join('');
+    const yes=t._state==='accepted';
+    return`<div class="rcard ${yes?'yes':t._state==='rejected'?'no':''}" id="rc${t._id}">
+      <div class="rcard-body">
+        <div class="rcard-text">${esc(t.text)}</div>
+        <div class="rcard-meta">${chips}</div>
+        <div class="rcard-acts">
+          <button class="racc" onclick="acceptR('${t._id}')">✓ Add</button>
+          <div class="racc-done">✓ Added</div>
+          <button class="rrej" onclick="rejectR('${t._id}')">Skip</button>
+        </div>
+      </div>
+      ${subs?`<div class="rsubs">${subs}</div>`:''}
+    </div>`;
+  }).join('');
+  updateCommit();
+}
+function acceptR(id){const t=dumpSuggestions.find(x=>x._id===id);if(t)t._state=t._state==='accepted'?'pending':'accepted';renderDumpRcards();}
+function rejectR(id){const t=dumpSuggestions.find(x=>x._id===id);if(t)t._state='rejected';renderDumpRcards();}
+function updateCommit(){const n=dumpSuggestions.filter(t=>t._state==='accepted').length;const btn=document.getElementById('commitBtn');if(btn){btn.textContent=n>0?`Add ${n} task${n>1?'s':''}`:'Add accepted tasks';btn.disabled=n===0;}}
+function commitDump(){
+  const accepted=dumpSuggestions.filter(t=>t._state==='accepted');
+  const pending=[];
+  accepted.forEach(t=>{
+    const newId=Date.now().toString()+Math.random();
+    tasks.push({id:newId,text:t.text,notes:t.notes||'',due:t.due||'',priority:t.priority||3,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
+    if(!t.due&&t.suggested_due&&t.suggested_due_reason)pending.push({id:newId,date:t.suggested_due,reason:t.suggested_due_reason});
+  });
+  save();renderAll();
+  showRP('welcome','Done!',`${accepted.length} task${accepted.length!==1?'s':''} added.`);
+  pending.forEach((s,i)=>setTimeout(()=>showDueSuggestion(s.id,s.date,s.reason),i*600));
+}
+
+// ── BRAIN DUMP MOBILE ────────────────────────────────────
+async function runDumpMobile(){
+  const raw=document.getElementById('dumpInputMobile').value.trim();if(!raw)return;
+  document.getElementById('dumpGoBtnMobile').disabled=true;
+  document.getElementById('dumpGoBtnMobile').style.display='none';
+  document.getElementById('dumpLoadingWrapMobile').style.display='block';
+  document.getElementById('dumpErrMobile').classList.remove('show');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:1500,
+      system:`Parse a messy brain dump into tasks. Return ONLY a JSON array, no markdown.
+Each item: {"text":string,"priority":1-3,"tags":string[],"due":"YYYY-MM-DD"|"","notes":string,"subtasks":string[],"bucket":"inbox"|"week"|"prioritized"|"burner","quickable":boolean,"effort":"low"|"medium"|"high","suggested_due":"YYYY-MM-DD"|null,"suggested_due_reason":string|null}
+priority: 1=Critical, 2=High, 3=Low. bucket: "week" if urgent this week, "burner" if long-term vague, else "inbox".
+If a task involves a phone call, text, email, voicemail, or any direct communication with a person, include "Call Sheet" in its tags array.
+suggested_due: only if timing is genuinely inferrable and no due date is set, else null. Today: ${todayStr()}.`,
+      messages:[{role:'user',content:raw}]
+    })});
+    const data=await res.json();
+    const txt=data.content?.map(b=>b.text||'').join('').trim();
+    dumpSuggestions=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim()).map((t,i)=>({...t,_id:`d${Date.now()}${i}`,_state:'pending'}));
+    document.getElementById('dumpLoadingWrapMobile').style.display='none';
+    renderDumpRcardsMobile();
+    document.getElementById('dumpReviewMobile').style.display='block';
+  }catch{
+    document.getElementById('dumpLoadingWrapMobile').style.display='none';
+    document.getElementById('dumpGoBtnMobile').style.display='flex';
+    document.getElementById('dumpGoBtnMobile').disabled=false;
+    const el=document.getElementById('dumpErrMobile');el.textContent='Something went wrong. Try again.';el.classList.add('show');
+  }
+}
+function renderDumpRcardsMobile(){
+  document.getElementById('rcardsMobile').innerHTML=dumpSuggestions.map(t=>{
+    const chips=[PRI[t.priority]?`<span class="chip ${PRI[t.priority].cls}">${PRI[t.priority].label}</span>`:'',t.due?`<span class="chip c-later">${t.due}</span>`:'',tagChips(t.tags),t.quickable?`<span class="chip c-soon">🫐</span>`:'',`<span class="chip c-later">${t.bucket==='week'?'📅':t.bucket==='burner'?'🕯':t.bucket==='prioritized'?'↑':'📥'}</span>`].join('');
+    const subs=(t.subtasks||[]).map(s=>`<div class="rsub-item">${esc(s)}</div>`).join('');
+    const yes=t._state==='accepted';
+    return`<div class="rcard ${yes?'yes':t._state==='rejected'?'no':''}" id="rcm${t._id}">
+      <div class="rcard-body">
+        <div class="rcard-text">${esc(t.text)}</div>
+        <div class="rcard-meta">${chips}</div>
+        <div class="rcard-acts">
+          <button class="racc" onclick="acceptRM('${t._id}')">✓ Add</button>
+          <div class="racc-done">✓ Added</div>
+          <button class="rrej" onclick="rejectRM('${t._id}')">Skip</button>
+        </div>
+      </div>
+      ${subs?`<div class="rsubs">${subs}</div>`:''}
+    </div>`;
+  }).join('');
+  updateCommitMobile();
+}
+function acceptRM(id){const t=dumpSuggestions.find(x=>x._id===id);if(t)t._state=t._state==='accepted'?'pending':'accepted';renderDumpRcardsMobile();}
+function rejectRM(id){const t=dumpSuggestions.find(x=>x._id===id);if(t)t._state='rejected';renderDumpRcardsMobile();}
+function updateCommitMobile(){const n=dumpSuggestions.filter(t=>t._state==='accepted').length;const btn=document.getElementById('commitBtnMobile');if(btn){btn.textContent=n>0?`Add ${n} task${n>1?'s':''}`:'Add accepted tasks';btn.disabled=n===0;}}
+function commitDumpMobile(){
+  const accepted=dumpSuggestions.filter(t=>t._state==='accepted');
+  const pending=[];
+  accepted.forEach(t=>{
+    const newId=Date.now().toString()+Math.random();
+    tasks.push({id:newId,text:t.text,notes:t.notes||'',due:t.due||'',priority:t.priority||2,tags:t.tags||[],subtasks:(t.subtasks||[]).map(s=>({text:s,done:false})),done:false,added:Date.now(),bucket:t.bucket||'inbox',quickable:t.quickable??null,effort:t.effort||null});
+    if(!t.due&&t.suggested_due&&t.suggested_due_reason)pending.push({id:newId,date:t.suggested_due,reason:t.suggested_due_reason});
+  });
+  save();renderAll();
+  closeOverlay('dumpOverlay');
+  pending.forEach((s,i)=>setTimeout(()=>showDueSuggestion(s.id,s.date,s.reason),i*600));
+}
+
+// ── THIS WEEK SUGGEST ─────────────────────────────────────
+function showRPWeek(){
+  showRP('week','Plan my week','Suggesting from your Inbox…');
+  document.getElementById('weekLoadingWrap').style.display='block';
+  document.getElementById('weekReview').style.display='none';
+  document.getElementById('weekErr').classList.remove('show');
+  weekSuggestions=[];
+  runWeekSuggest();
+}
+async function runWeekSuggest(){
+  const inbox=tasks.filter(t=>t.bucket==='prioritized'&&!t.done);
+  if(!inbox.length){
+    document.getElementById('weekLoadingWrap').style.display='none';
+    document.getElementById('weekErr').textContent='No prioritized tasks to pull from. Triage some tasks first.';
+    document.getElementById('weekErr').classList.add('show');
+    return;
+  }
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:800,
+      system:`Pick 3-5 inbox tasks for this week. Return ONLY JSON array: [{"id":"task id","reason":"1 sentence why this week"}]. Today: ${todayStr()}. End of week: ${endOfWeek()}.`,
+      messages:[{role:'user',content:`Inbox:\n${inbox.map(t=>`ID:${t.id} | ${t.text} | pri:${t.priority} | due:${t.due||'none'} | effort:${t.effort||'?'}`).join('\r\n')}`}]
+    })});
+    const data=await res.json();
+    const picks=JSON.parse(data.content?.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
+    weekSuggestions=picks.map(p=>({...p,_state:'pending'})).filter(p=>tasks.find(t=>t.id===p.id));
+    document.getElementById('weekLoadingWrap').style.display='none';
+    renderWeekRcards();
+    document.getElementById('weekReview').style.display='block';
+    document.getElementById('rpSub').textContent='Review and confirm what makes this week.';
+  }catch{
+    document.getElementById('weekLoadingWrap').style.display='none';
+    document.getElementById('weekErr').textContent='Couldn\'t generate suggestions. Try again.';
+    document.getElementById('weekErr').classList.add('show');
+  }
+}
+function renderWeekRcards(){
+  document.getElementById('weekRcards').innerHTML=weekSuggestions.map(s=>{
+    const t=tasks.find(x=>x.id===s.id);if(!t)return'';
+    const due=dueLabel(t.due);const yes=s._state==='accepted';
+    return`<div class="rcard ${yes?'yes':s._state==='rejected'?'no':''}" id="wrc${s.id}">
+      <div class="rcard-body">
+        <div class="rcard-text">${esc(t.text)}</div>
+        <div class="rcard-meta">${due?`<span class="chip ${due.cls}">${due.text}</span>`:''} ${tagChips(t.tags)}</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:8px;font-style:italic">${esc(s.reason)}</div>
+        <div class="rcard-acts">
+          <button class="racc" onclick="acceptW('${s.id}')">✓ This week</button>
+          <div class="racc-done">✓ Added</div>
+          <button class="rrej" onclick="rejectW('${s.id}')">Skip</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const n=weekSuggestions.filter(s=>s._state==='accepted').length;
+  const btn=document.getElementById('weekCommitBtn');
+  if(btn){btn.textContent=n>0?`Move ${n} to This Week`:'Move accepted to This Week';btn.disabled=n===0;}
+}
+function acceptW(id){const s=weekSuggestions.find(x=>x.id===id);if(s)s._state=s._state==='accepted'?'pending':'accepted';renderWeekRcards();}
+function rejectW(id){const s=weekSuggestions.find(x=>x.id===id);if(s)s._state='rejected';renderWeekRcards();}
+function commitWeek(){
+  weekSuggestions.filter(s=>s._state==='accepted').forEach(s=>{const t=tasks.find(x=>x.id===s.id);if(t){t.bucket='week';save();}});
+  renderAll();showRP('welcome','Week planned','Tasks moved to This Week.');
+}
+
+// ── UNSTUCK ───────────────────────────────────────────────
+function openUnstuck(tid,e){
+  e.stopPropagation();
+  const t=tasks.find(x=>x.id===tid);if(!t)return;
+  document.getElementById('unstuckTitle').textContent=t.text;
+  document.getElementById('unstuckLoadingWrap').style.display='block';
+  document.getElementById('unstuckContent').style.display='none';
+  document.getElementById('unstuckErr').classList.remove('show');
+  showRP('unstuck','Breaking the block','Reading your task…');
+  const ctx=[t.text,t.notes&&`Notes: ${t.notes}`,t.due&&`Due: ${t.due}`,t.tags?.length&&`Tags: ${t.tags.join(', ')}`].filter(Boolean).join('\r\n');
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    model:'claude-sonnet-4-20250514',max_tokens:800,
+    system:`Help someone break through task paralysis. Return ONLY JSON: {"what":"2-3 sentences normalizing the task","matters":"2-3 sentences on the 1-2 real decisions and what to safely ignore","next":"ONE hyper-specific next action in the next 5 minutes"}`,
+    messages:[{role:'user',content:`I'm stuck on: ${ctx}`}]
+  })}).then(r=>r.json()).then(data=>{
+    const p=JSON.parse(data.content?.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
+    document.getElementById('bWhat').innerHTML=p.what.split('\n').filter(Boolean).map(s=>`<p>${s}</p>`).join('');
+    document.getElementById('bMatters').innerHTML=p.matters.split('\n').filter(Boolean).map(s=>`<p>${s}</p>`).join('');
+    document.getElementById('bNext').textContent=p.next;
+    document.getElementById('unstuckLoadingWrap').style.display='none';
+    document.getElementById('unstuckContent').style.display='block';
+    document.getElementById('rpSub').textContent='Here\'s what you actually need to know.';
+  }).catch(()=>{
+    document.getElementById('unstuckLoadingWrap').style.display='none';
+    const el=document.getElementById('unstuckErr');el.textContent='Couldn\'t load briefing. Try again.';el.classList.add('show');
+  });
+}
+
+// ── GMS ───────────────────────────────────────────────────
+function showRPGMS(){
+  if(!isDesktop()){
+    openOverlay('gmsOverlay');
+    gmsTaskId=null;
+    runGMSMobile();
+    return;
+  }
+  showRP('gms','Quick Berry','Finding a good blueberry…');
+  document.getElementById('gmsLoadingWrap').style.display='block';
+  document.getElementById('gmsContent').style.display='none';
+  document.getElementById('gmsErr').classList.remove('show');
+  document.getElementById('gmsEmpty').style.display='none';
+  gmsTaskId=null;
+  runGMS();
+}
+function runGMS(){
+  document.getElementById('gmsContent').style.display='none';
+  document.getElementById('gmsErr').classList.remove('show');
+  document.getElementById('gmsEmpty').style.display='none';
+  document.getElementById('gmsLoadingWrap').style.display='none';
+  const chosen=pickQuickBerry();
+  if(!chosen){document.getElementById('gmsEmpty').style.display='block';return;}
+  gmsTaskId=chosen.id;
+  const due=dueLabel(chosen.due);
+  document.getElementById('gmsCard').innerHTML=renderCard(chosen);
+  document.getElementById('gmsWhy').textContent=whyThisTask(chosen);
+  document.getElementById('gmsContent').style.display='block';
+  document.getElementById('rpSub').textContent='Here\'s a good use of your time right now.';
+}
+function runGMSMobile(){
+  const gc=document.getElementById('gmsContentM');
+  const ge=document.getElementById('gmsErrM');
+  const gy=document.getElementById('gmsEmptyM');
+  const lw=document.getElementById('gmsLoadingWrapM');
+  if(lw)lw.style.display='none';
+  if(gc)gc.style.display='none';
+  if(ge)ge.classList.remove('show');
+  if(gy)gy.style.display='none';
+  const chosen=pickQuickBerry();
+  if(!chosen){if(gy)gy.style.display='block';return;}
+  gmsTaskId=chosen.id;
+  const due=dueLabel(chosen.due);
+  document.getElementById('gmsCardM').innerHTML=renderCard(chosen);
+  document.getElementById('gmsWhyM').textContent=whyThisTask(chosen);
+  if(gc)gc.style.display='block';
+}
+
+// ── QUICK BERRY LOCAL LOGIC ───────────────────────────────
+function pickQuickBerry(){
+  // Only quickable:true tasks — no exceptions
+  const all=tasks.filter(t=>!t.done&&t.quickable===true&&t.bucket!=='burner');
+  if(!all.length)return null;
+  // Exclude recently shown, reset if cycled through all
+  let pool=all.filter(t=>!recentGMSIds.includes(t.id));
+  if(!pool.length){recentGMSIds=[];pool=all;}
+  // Sort by priority then effort
+  pool.sort((a,b)=>{
+    if(a.priority!==b.priority)return a.priority-b.priority;
+    const eff={low:0,medium:1,high:2};
+    return(eff[a.effort]||1)-(eff[b.effort]||1);
+  });
+  const chosen=pool[0];
+  if(chosen){recentGMSIds.push(chosen.id);if(recentGMSIds.length>6)recentGMSIds.shift();}
+  return chosen||null;
+}
+
+function whyThisTask(t){
+  const bucketMsg=t.bucket==='week'?'On your list for this week':t.bucket==='prioritized'?'Already prioritized':t.bucket==='inbox'?'Been waiting for you':'';
+  const effortMsg=t.effort==='low'?' — quick to knock out':'';
+  const priMsg=t.priority===1?'Critical — ':'';
+  return (priMsg+bucketMsg+effortMsg+'.').trim();
+}
+
+function markGMSDoneMobile(){
+  if(gmsTaskId){const t=tasks.find(x=>x.id===gmsTaskId);if(t){t.done=true;save();renderAll();}}
+  closeOverlay('gmsOverlay');
+}
+
+function markGMSDone(){
+  if(gmsTaskId){const t=tasks.find(x=>x.id===gmsTaskId);if(t){t.done=true;save();renderAll();}}
+  showRP('welcome','Nice work!','That one\'s done. What\'s next?');
+}
+
+
+// ── ARCHIVE ───────────────────────────────────────────────
+const ARCHIVE_KEY='daily-last-archive';
+const ARCHIVE_INTERVAL=90*24*60*60*1000; // 90 days in ms
+
+function checkArchive(){
+  const done=tasks.filter(t=>t.done);
+  if(!done.length)return;
+  const last=parseInt(localStorage.getItem(ARCHIVE_KEY)||'0');
+  const due=Date.now()-last>ARCHIVE_INTERVAL;
+  document.getElementById('archiveBanner').style.display=due?'block':'none';
+}
+
+function dismissArchive(){
+  document.getElementById('archiveBanner').style.display='none';
+  localStorage.setItem(ARCHIVE_KEY,Date.now().toString());
+}
+
+function runArchive(){
+  const done=tasks.filter(t=>t.done);
+  if(!done.length)return;
+
+  // Build CSV
+  const rows=[['Task','Tags','Bucket','Priority','Created','Due','Completed Notes']];
+  done.forEach(t=>{
+    const created=t.added?new Date(t.added).toISOString().slice(0,10):'';
+    const due=t.due||'';
+    const pri={1:'Critical',2:'High',3:'Normal',4:'Low'}[t.priority]||'';
+    const bucket={inbox:'Inbox',week:'This Week',burner:'Back Burner'}[t.bucket]||t.bucket||'';
+    const tags=(t.tags||[]).join('; ');
+    const notes=(t.notes||'').replace(/"/g,'""');
+    rows.push([
+      `"${(t.text||'').replace(/"/g,'""')}"`,
+      `"${tags}"`,
+      `"${bucket}"`,
+      `"${pri}"`,
+      `"${created}"`,
+      `"${due}"`,
+      `"${notes}"`
+    ]);
+  });
+
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const quarter=getQuarterLabel();
+  a.href=url;
+  a.download=`daily-archive-${quarter}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Remove completed tasks and record archive date
+  tasks=tasks.filter(t=>!t.done);
+  save();
+  localStorage.setItem(ARCHIVE_KEY,Date.now().toString());
+  document.getElementById('archiveBanner').style.display='none';
+  renderAll();
+}
+
+function getQuarterLabel(){
+  const d=new Date();
+  const q=Math.floor(d.getMonth()/3)+1;
+  return `${d.getFullYear()}-Q${q}`;
+}
+
+// ── INIT ──────────────────────────────────────────────────
+const nd=new Date();
+document.getElementById('headerDate').innerHTML=nd.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+if(!tasks.length){
+  const t=todayStr();
+  const yd=new Date();yd.setDate(yd.getDate()-1);const yS=yd.toISOString().slice(0,10);
+  const tm=new Date();tm.setDate(tm.getDate()+2);const tS=tm.toISOString().slice(0,10);
+  const nw=new Date();nw.setDate(nw.getDate()+7);const nS=nw.toISOString().slice(0,10);
+  tasks=[
+    {id:'1',text:'Review Q2 production schedule',notes:'Check delivery dates and flag any blockers.',due:yS,priority:1,tags:['Work'],subtasks:[{text:'Pull current timeline',done:true},{text:'Flag blockers',done:false},{text:'Send revised dates',done:false}],done:false,added:1,bucket:'week',quickable:false,effort:'medium'},
+    {id:'2',text:'Book pediatrician follow-up',notes:'Call before noon.',due:t,priority:2,tags:['Health','Call Sheet'],subtasks:[],done:false,added:2,bucket:'week',quickable:true,effort:'low'},
+    {id:'3',text:'Order topsoil for lawn project',notes:'Need ~3 yards.',due:tS,priority:3,tags:['Home','Errands'],subtasks:[{text:'Measure area',done:false},{text:'Calculate volume',done:false},{text:'Place order',done:false}],done:false,added:3,bucket:'inbox',quickable:false,effort:'medium'},
+    {id:'4',text:'Draft Chapter 4 outline',notes:'Focus on the editorial layer section.',due:nS,priority:2,tags:['Writing'],subtasks:[{text:'Re-read research notes',done:false},{text:'Draft section headers',done:false}],done:false,added:4,bucket:'week',quickable:true,effort:'medium'},
+    {id:'5',text:'Pick up dog food',due:t,priority:3,tags:['Errands'],subtasks:[],notes:'',done:false,added:5,bucket:'inbox',quickable:true,effort:'low'},
+    {id:'6',text:'Export voice test clips',due:'',priority:3,tags:['Work'],subtasks:[],notes:'Compare samples for podcast.',done:false,added:6,bucket:'prioritized',quickable:true,effort:'low'},
+    {id:'7',text:'Research standing desk options',due:'',priority:3,tags:['Home'],subtasks:[],notes:'Not urgent.',done:false,added:7,bucket:'burner',quickable:false,effort:'low'},
+    {id:'8',text:'Look into refinancing options',due:'',priority:3,tags:['Home'],subtasks:[],notes:'Rates may have changed.',done:false,added:8,bucket:'burner',quickable:false,effort:'medium'},
+  ];
+  save();
+}
+
+// Ensure rp-add exists
+(function(){
+  if(!document.getElementById('rp-add')){
+    const d=document.createElement('div');d.className='rp-state';d.id='rp-add';
+    document.getElementById('rpBody').appendChild(d);
+  }
+})();
+
+refreshPri();renderTags2();renderAll();checkArchive();
+
+// Register service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/blueberries/sw.js')
+      .catch(err=>console.log('SW registration failed:',err));
+  });
+}
+</script>
+</body>
+</html>
