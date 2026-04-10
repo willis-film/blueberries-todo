@@ -1,4 +1,4 @@
-const CACHE = 'blueberries-v1';
+const CACHE = 'blueberries-v2';
 const ASSETS = [
   '/blueberries-todo/',
   '/blueberries-todo/index.html'
