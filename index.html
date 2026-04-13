@@ -425,6 +425,10 @@ textarea.inp{resize:none;height:80px;line-height:1.6;}
     <!-- PAGES -->
     <div class="main-content">
       <div class="page" id="page-inbox">
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <button onclick="exportData()" style="flex:1;padding:8px;font-size:11px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);color:var(--mid);cursor:pointer;">⬇ Export data</button>
+          <button onclick="importData()" style="flex:1;padding:8px;font-size:11px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);color:var(--mid);cursor:pointer;">⬆ Import data</button>
+        </div>
         <div id="archiveBanner" style="display:none">
           <div class="archive-banner">
             <div class="archive-banner-text">
@@ -1066,7 +1070,7 @@ async function suggestTriageDue(e){
   const btn=e.target;
   btn.textContent='…';btn.disabled=true;
   try{
-    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:100,
       system:`Suggest a due date only if timing is genuinely inferrable from the task name. Today: ${todayStr()}. Return ONLY JSON: {"date":"YYYY-MM-DD","reason":"short phrase"} or {}`,
       messages:[{role:'user',content:t.text}]
@@ -1327,7 +1331,7 @@ function submitAdd(){
 // ── DUE DATE SUGGESTION ───────────────────────────────────
 async function suggestDueDate(taskId,text){
   try{
-    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:120,
       system:`Suggest due dates only when timing is genuinely inferrable from real-world context (seasons, annual deadlines, recurring events). If not confident, return {}. Today: ${todayStr()}. Respond ONLY with JSON: {"date":"YYYY-MM-DD","reason":"short phrase"} or {}`,
       messages:[{role:'user',content:text}]
@@ -1390,7 +1394,7 @@ async function runDump(){
   document.getElementById('dumpLoadingWrap').style.display='block';
   document.getElementById('dumpErr').classList.remove('show');
   try{
-    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into individual tasks. Return ONLY a JSON array, no markdown.
 Each item: {"text":string}
@@ -1447,7 +1451,7 @@ async function runDumpMobile(){
   document.getElementById('dumpLoadingWrapMobile').style.display='block';
   document.getElementById('dumpErrMobile').classList.remove('show');
   try{
-    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1500,
       system:`Parse a messy brain dump into individual tasks. Return ONLY a JSON array, no markdown.
 Each item: {"text":string}
@@ -1514,7 +1518,7 @@ async function runWeekSuggest(){
     return;
   }
   try{
-    const res=await fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:800,
       system:`Pick 3-5 inbox tasks for this week. Return ONLY JSON array: [{"id":"task id","reason":"1 sentence why this week"}]. Today: ${todayStr()}. End of week: ${endOfWeek()}.`,
       messages:[{role:'user',content:`Inbox:\n${inbox.map(t=>`ID:${t.id} | ${t.text} | pri:${t.priority} | due:${t.due||'none'} | effort:${t.effort||'?'}`).join('\r\n')}`}]
@@ -1602,7 +1606,7 @@ function openUnstuck(tid,e){
     document.getElementById('unstuckErr').classList.remove('show');
     showRP('unstuck','Breaking the block','Reading your task…');
   }
-  fetch('https://blueberries-proxy.willis-film.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){return r.json();})
     .then(function(data){
       const p=JSON.parse(data.content.map(function(b){return b.text||'';}).join('').replace(/```json|```/g,'').trim());
@@ -1795,6 +1799,43 @@ if(!tasks.length){
 })();
 
 checkNextWeekRollover();refreshPri();renderTags2();renderAll();checkArchive();
+
+// ── DATA RECOVERY ─────────────────────────────────────────
+function exportData(){
+  const data={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    data[k]=localStorage.getItem(k);
+  }
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='blueberries-backup.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+function importData(){
+  const inp=document.createElement('input');
+  inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        Object.keys(data).forEach(k=>localStorage.setItem(k,data[k]));
+        alert('Data restored! Reloading...');
+        location.reload();
+      }catch{alert('Could not read file.');}
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+// Log all localStorage keys on load for debugging
+console.log('LocalStorage keys:', Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)));
+console.log('daily-v7 length:', JSON.parse(localStorage.getItem('daily-v7')||'[]').length);
+
 
 // ── SWIPE TO CLOSE SHEETS ────────────────────────────────
 function addSwipeToClose(overlayId){
