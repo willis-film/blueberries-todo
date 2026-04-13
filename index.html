@@ -656,7 +656,19 @@ let expanded={},editOpen={},activeTag=null,gmsTaskId=null;
 let weekSuggestions=[],dumpSuggestions=[],recentGMSIds=[],activePriFilter=null,completedOpen={};
 let currentTab='week';
 
-const save=()=>localStorage.setItem('daily-v7',JSON.stringify(tasks));
+const save=()=>{
+  localStorage.setItem('daily-v7',JSON.stringify(tasks));
+  syncToDB();
+};
+let syncTimer=null;
+function syncToDB(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(async()=>{
+    try{
+      await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tasks})});
+    }catch(err){console.warn('DB sync failed:',err);}
+  },1000); // debounce — wait 1s after last change before syncing
+}
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const isDesktop=()=>window.innerWidth>=820;
@@ -1778,24 +1790,6 @@ function getQuarterLabel(){
 const nd=new Date();
 document.getElementById('headerDate').innerHTML=nd.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 
-if(!tasks.length){
-  const t=todayStr();
-  const yd=new Date();yd.setDate(yd.getDate()-1);const yS=yd.toISOString().slice(0,10);
-  const tm=new Date();tm.setDate(tm.getDate()+2);const tS=tm.toISOString().slice(0,10);
-  const nw=new Date();nw.setDate(nw.getDate()+7);const nS=nw.toISOString().slice(0,10);
-  tasks=[
-    {id:'1',text:'Review Q2 production schedule',notes:'Check delivery dates and flag any blockers.',due:yS,priority:1,tags:['Work'],subtasks:[{text:'Pull current timeline',done:true},{text:'Flag blockers',done:false},{text:'Send revised dates',done:false}],done:false,added:1,bucket:'week',quickable:false,effort:'medium'},
-    {id:'2',text:'Book pediatrician follow-up',notes:'Call before noon.',due:t,priority:2,tags:['Health','Call Sheet'],subtasks:[],done:false,added:2,bucket:'week',quickable:true,effort:'low'},
-    {id:'3',text:'Order topsoil for lawn project',notes:'Need ~3 yards.',due:tS,priority:3,tags:['Home','Errands'],subtasks:[{text:'Measure area',done:false},{text:'Calculate volume',done:false},{text:'Place order',done:false}],done:false,added:3,bucket:'inbox',quickable:false,effort:'medium'},
-    {id:'4',text:'Draft Chapter 4 outline',notes:'Focus on the editorial layer section.',due:nS,priority:2,tags:['Writing'],subtasks:[{text:'Re-read research notes',done:false},{text:'Draft section headers',done:false}],done:false,added:4,bucket:'week',quickable:true,effort:'medium'},
-    {id:'5',text:'Pick up dog food',due:t,priority:3,tags:['Errands'],subtasks:[],notes:'',done:false,added:5,bucket:'inbox',quickable:true,effort:'low'},
-    {id:'6',text:'Export voice test clips',due:'',priority:3,tags:['Work'],subtasks:[],notes:'Compare samples for podcast.',done:false,added:6,bucket:'prioritized',quickable:true,effort:'low'},
-    {id:'7',text:'Research standing desk options',due:'',priority:3,tags:['Home'],subtasks:[],notes:'Not urgent.',done:false,added:7,bucket:'burner',quickable:false,effort:'low'},
-    {id:'8',text:'Look into refinancing options',due:'',priority:3,tags:['Home'],subtasks:[],notes:'Rates may have changed.',done:false,added:8,bucket:'burner',quickable:false,effort:'medium'},
-  ];
-  save();
-}
-
 // Ensure rp-add exists
 (function(){
   if(!document.getElementById('rp-add')){
@@ -1804,7 +1798,53 @@ if(!tasks.length){
   }
 })();
 
-checkNextWeekRollover();refreshPri();renderTags2();renderAll();checkArchive();
+// Show loading state
+function showLoadingState(){
+  document.getElementById('weekList').innerHTML='<div class="empty" style="padding-top:40px;"><div class="bread" style="font-size:32px;animation:spin 1.4s linear infinite;display:inline-block;">🫐</div><br>Loading your berries…</div>';
+}
+
+async function initApp(){
+  showLoadingState();
+  try{
+    // Try loading from database first
+    const res=await fetch('/api/tasks');
+    if(res.ok){
+      const dbTasks=await res.json();
+      if(dbTasks&&dbTasks.length>0){
+        // Parse JSONB fields back from strings if needed
+        tasks=dbTasks.map(t=>({
+          ...t,
+          tags:typeof t.tags==='string'?JSON.parse(t.tags):t.tags||[],
+          subtasks:typeof t.subtasks==='string'?JSON.parse(t.subtasks):t.subtasks||[],
+          quickable:t.quickable,
+          done:t.done||false
+        }));
+        // Update localStorage cache
+        localStorage.setItem('daily-v7',JSON.stringify(tasks));
+      } else {
+        // DB is empty — check localStorage for existing tasks to migrate
+        const local=JSON.parse(localStorage.getItem('daily-v7')||'[]');
+        if(local.length>0){
+          tasks=local;
+          // Push local tasks up to DB
+          await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tasks})});
+        }
+        // Otherwise stay with empty tasks — no seed data
+      }
+    } else {
+      // DB unavailable — use localStorage cache
+      tasks=JSON.parse(localStorage.getItem('daily-v7')||'[]');
+      console.warn('DB unavailable, using localStorage');
+    }
+  }catch(err){
+    // Network error — use localStorage cache
+    tasks=JSON.parse(localStorage.getItem('daily-v7')||'[]');
+    console.warn('DB load failed, using localStorage:', err);
+  }
+  checkNextWeekRollover();refreshPri();renderTags2();renderAll();checkArchive();
+}
+
+initApp();
 
 // ── DATA RECOVERY ─────────────────────────────────────────
 function exportData(){
