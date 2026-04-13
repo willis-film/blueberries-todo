@@ -1,7 +1,7 @@
-const CACHE = 'blueberries-v2';
+const CACHE = 'blueberries-v3';
 const ASSETS = [
-  '/blueberries-todo/',
-  '/blueberries-todo/index.html'
+  '/',
+  '/index.html'
 ];
 
 // Install — cache the app shell
