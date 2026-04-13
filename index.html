@@ -1402,16 +1402,22 @@ Rules: one task per item, text only, no tags, no priority, no due dates, no subt
       messages:[{role:'user',content:raw}]
     })});
     const data=await res.json();
-    const txt=data.content?.map(b=>b.text||'').join('').trim();
+    console.log('Dump API response:', JSON.stringify(data).slice(0,200));
+    if(data.error){throw new Error('API error: '+data.error.message);}
+    if(!data.content||!data.content.length){throw new Error('Empty response: '+JSON.stringify(data));}
+    const txt=data.content.map(b=>b.text||'').join('').trim();
     dumpSuggestions=JSON.parse(txt.replace(/```json|```/g,'').trim()).map((t,i)=>({...t,_id:`d${Date.now()}${i}`,_state:'pending'}));
     document.getElementById('dumpLoadingWrap').style.display='none';
     renderDumpRcards();
     document.getElementById('dumpReview').style.display='block';
-  }catch{
+  }catch(err){
+    console.error('Dump error:', err);
     document.getElementById('dumpLoadingWrap').style.display='none';
     document.getElementById('dumpGoBtn').style.display='flex';
     document.getElementById('dumpGoBtn').disabled=false;
-    const el=document.getElementById('dumpErr');el.textContent='Something went wrong. Try again.';el.classList.add('show');
+    const el=document.getElementById('dumpErr');
+    el.textContent='Error: '+(err&&err.message?err.message:'Unknown. Check console.');
+    el.classList.add('show');
   }
 }
 function renderDumpRcards(){
